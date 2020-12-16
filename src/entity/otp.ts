@@ -23,7 +23,7 @@ import { User } from "./User";
     @UpdateDateColumn()
     updatedAt: Date;
   
-    @Column("point")
+    @Column()
     number: number;
   
     @Column()
