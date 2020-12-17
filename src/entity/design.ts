@@ -9,12 +9,12 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm";
-import { Design } from "./design";
+import { Board } from "./board";
 import { Thread } from "./thread";
 import { User } from "./User";
 
-@Entity("board")
-export class Board extends BaseEntity {
+@Entity("design")
+export class Design extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -27,12 +27,6 @@ export class Board extends BaseEntity {
   updatedAt: Date;
 
   @Column()
-  public: boolean;
-
-  @Column()
-  thumbnail: string;
-
-  @Column()
   file: string;
 
   @Column()
@@ -40,12 +34,9 @@ export class Board extends BaseEntity {
 
   //-----------------------RELATIONS-----------------------
 
-  @ManyToOne((type) => User, (user) => user.boards)
+  @ManyToOne((type) => Board, (board) => board.designs)
+  board: Board;
+
+  @ManyToOne((type) => User, (user) => user.designs)
   user: User;
-
-  @OneToMany((type) => Thread, (thread) => thread.board)
-  threads: Thread[];
-
-  @OneToMany((type) => Design, (design) => design.board)
-  designs: Design[];
 }

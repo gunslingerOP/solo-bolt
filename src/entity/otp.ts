@@ -1,39 +1,41 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    BaseEntity,
-    ManyToOne,
-    CreateDateColumn,
-    UpdateDateColumn,
-    OneToOne,
-  } from "typeorm";
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  ManyToOne,
+} from "typeorm";
 import { User } from "./User";
-  
-  @Entity("otp")
-  export class Otp {
-    @PrimaryGeneratedColumn()
-    id: number;
-  
-    @Column()
-    @CreateDateColumn()
-    createdAt: Date;
-  
-    @Column()
-    @UpdateDateColumn()
-    updatedAt: Date;
-  
-    @Column()
-    number: number;
-  
-    @Column()
-    used: boolean;
-  
-    @Column()
-    expired: boolean;
-  
+
+@Entity("otp")
+export class Otp extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column()
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({ nullable: true })
+  code: string;
+
+  @Column()
+  used: boolean;
+
+  @Column()
+  type: string;
+
+  @Column()
+  expired: boolean;
+
   //-----------------------RELATIONS-----------------------
-  @OneToOne(()=>User, user=>user.otp)
-  user:User
-  }
-  
+  @ManyToOne((type) => User, (user) => user.otp)
+  user: User;
+}

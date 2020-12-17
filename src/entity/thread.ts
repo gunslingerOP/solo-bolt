@@ -13,7 +13,7 @@ import { Board } from "./board";
 import { Comment } from "./comment";
 
 @Entity("thread")
-export class Thread {
+export class Thread extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,10 +37,10 @@ export class Thread {
   @Column()
   completed: boolean;
 
-//-----------------------RELATIONS-----------------------
-@ManyToOne(() => Board, board => board.threads)
-board: Board;
+  //-----------------------RELATIONS-----------------------
+  @ManyToOne((type) => Board, (board) => board.threads)
+  board: Board;
 
-@OneToMany(()=>Comment, comment=>comment.thread)
-comments: Comment[]
+  @OneToMany((type) => Comment, (comment) => comment.thread)
+  comments: Comment[];
 }
