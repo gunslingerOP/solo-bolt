@@ -26,10 +26,10 @@ export class Design extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @Column({nullable:true})
   file: string;
 
-  @Column()
+  @Column({nullable:true})
   url: string;
 
   //-----------------------RELATIONS-----------------------

@@ -5,6 +5,7 @@ import {
   OneToMany,
   OneToOne,
   BaseEntity,
+  ManyToOne,
 } from "typeorm";
 import { Board } from "./board";
 import { Comment } from "./comment";
@@ -29,12 +30,16 @@ export class User extends BaseEntity {
   @Column()
   verified: boolean;
 
+  @Column()
+  planPrice: string;
+  
+
   //-----------------------RELATIONS-----------------------
 
   @OneToMany((type) => Board, (board) => board.user)
   boards: Board[];
 
-  @OneToOne((type) => Plan, (plan) => plan.user)
+  @ManyToOne((type) => Plan, (plan) => plan.users)
   plan: Plan;
 
   @OneToMany((type) => Comment, (comment) => comment.user)

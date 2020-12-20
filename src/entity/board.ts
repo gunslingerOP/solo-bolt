@@ -30,13 +30,8 @@ export class Board extends BaseEntity {
   public: boolean;
 
   @Column()
-  thumbnail: string;
+  name: string;
 
-  @Column()
-  file: string;
-
-  @Column()
-  url: string;
 
   //-----------------------RELATIONS-----------------------
 

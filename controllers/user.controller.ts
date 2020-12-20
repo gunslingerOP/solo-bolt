@@ -3,32 +3,47 @@ require("dotenv").config();
 import validator from "../helpers/validate";
 import { emailVerifyOtp, hashMyPassword, otpGenerator } from "../helpers/tools";
 import * as jwt from "jsonwebtoken";
-import { closestIndexTo, format, formatDistance, subDays } from "date-fns";
+import { closestIndexTo, format } from "date-fns";
 import { User } from "../src/entity/User";
 import config from "../config/index";
 import { Otp } from "../src/entity/otp";
-import userAuth from "../middleware/userAuth";
+import { Design } from "../src/entity/design";
+import { Board } from "../src/entity/board";
+import { validators } from "validate.js";
+import { Plan } from "../src/entity/plan";
+import { basename } from "path";
+var cloudinary = require("cloudinary").v2;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+cloudinary.config({
+  cloud_name: config.cloudName,
+  api_key: config.cloudAPI,
+  api_secret: config.cloudSecret,
+});
 export default class userController {
   static register = async (ctx: any) => {
     try {
       let user;
       let otp;
+      let plan;
       let secretCode;
       let email;
       let notValid = validate(ctx.request.body, validator.register());
       if (notValid) throw { message: notValid };
       email = await User.findOne({ where: { email: ctx.request.body.email } });
-
       if (email) throw { message: `This email already exists` };
       const password = await hashMyPassword(ctx.request.body.password);
 
+      plan = await Plan.findOne({
+        where: { name: "free plan" },
+      });
       user = await User.create({
         ...ctx.request.body,
         password,
-        plan: 1,
+        plan,
         verified: false,
+        planPrice: plan.price,
       });
       await user.save();
       user.password = null;
@@ -202,9 +217,9 @@ export default class userController {
       let notValid = validate(ctx.request.body, validator.verify());
       if (notValid) throw { message: notValid };
       let user;
-      let userId 
-      userId= ctx.request.params.userId;
-      
+      let userId;
+      userId = ctx.request.params.userId;
+
       let otp;
       user = await User.findOne({
         where: { id: userId },
@@ -257,6 +272,97 @@ export default class userController {
       ctx.status = 400;
       ctx.body = {
         status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  //design upload and board creation
+
+  static uploadDesign = async (ctx) => {
+    try {
+      let boardId;
+      let board;
+      boardId = ctx.params.boardId;
+      board = await Board.findOne({ where: { id: boardId } });
+      if (!board) throw { message: `No such board found` };
+      if (ctx.request.file == null && ctx.request.body.url == null)
+        throw { message: `Please provide a design.` };
+      let img;
+      let user;
+      let design;
+      user = ctx.request.user;
+      if (ctx.request.body.url) {
+        design = await Design.create({
+          user,
+          url: ctx.request.body.url,
+          board,
+        });
+        await design.save();
+      } else {
+        let fileName = ctx.file.originalname;
+        let path = `./uploads/${fileName}`;
+        await cloudinary.uploader.upload(path, function (error, result) {
+          img = result.url;
+        });
+        design = await Design.create({
+          user,
+          file: img,
+          board,
+        });
+        await design.save();
+      }
+      ctx.body = {
+        status: "Success",
+        data: `Design created successfully`,
+      };
+    } catch (error) {
+      ctx.body = {
+        data: error,
+      };
+    }
+  };
+
+  static makeBoard = async (ctx) => {
+    try {
+      console.log("ctx.request.files", ctx.request.files);
+      console.log("ctx.files", ctx.files);
+      console.log("ctx.request.body", ctx.request.body);
+      let notvalid = validate(ctx.request.body, validator.board());
+      if (notvalid) throw { message: notvalid };
+      let boards;
+      let board;
+      let user;
+      user = ctx.request.user;
+      if (ctx.request.body.private == true && user.planPrice === "free")
+        throw {
+          message: `Please upgrade your account to make a private board`,
+        };
+      boards = await Board.findOne({ where: { user } });
+      if (user.planPrice === "free" && boards)
+        throw { message: `Upgrade your account to get unlimited boards` };
+
+      if (ctx.request.body.private == true) {
+        board = await Board.create({
+          user,
+          public: false,
+          name: ctx.request.body.name,
+        });
+        await board.save();
+      } else {
+        board = await Board.create({
+          user,
+          public: true,
+          name: ctx.request.body.name,
+        });
+        await board.save();
+      }
+      ctx.body = {
+        status: "Success",
+        data: `Board created successfully`,
+      };
+    } catch (error) {
+      ctx.body = {
         data: error,
       };
     }

@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  OneToMany,
 } from "typeorm";
 import { User } from "./User";
 
@@ -36,6 +37,6 @@ export class Plan extends BaseEntity {
   name: string;
 
   //-----------------------RELATIONS-----------------------
-  @OneToOne((type) => User, (user) => user.plan)
-  user: User;
+  @OneToMany((type) => User, (user) => user.plan)
+  users: User[];
 }
