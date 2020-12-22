@@ -12,6 +12,7 @@ import { Board } from "../src/entity/board";
 import { validators } from "validate.js";
 import { Plan } from "../src/entity/plan";
 import { basename } from "path";
+import { Access } from "../src/entity/access";
 var cloudinary = require("cloudinary").v2;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -317,7 +318,9 @@ export default class userController {
         data: `Design created successfully`,
       };
     } catch (error) {
+      ctx.status = 400;
       ctx.body = {
+        status: "Failed",
         data: error,
       };
     }
@@ -325,9 +328,6 @@ export default class userController {
 
   static makeBoard = async (ctx) => {
     try {
-      console.log("ctx.request.files", ctx.request.files);
-      console.log("ctx.files", ctx.files);
-      console.log("ctx.request.body", ctx.request.body);
       let notvalid = validate(ctx.request.body, validator.board());
       if (notvalid) throw { message: notvalid };
       let boards;
@@ -338,31 +338,194 @@ export default class userController {
         throw {
           message: `Please upgrade your account to make a private board`,
         };
-      boards = await Board.findOne({ where: { user } });
+      boards = await Board.findOne({ where: { author: user.id } });
       if (user.planPrice === "free" && boards)
         throw { message: `Upgrade your account to get unlimited boards` };
 
       if (ctx.request.body.private == true) {
         board = await Board.create({
-          user,
           public: false,
           name: ctx.request.body.name,
+          author: user.id,
+          user,
         });
         await board.save();
+        board = await Board.findOne({
+          where: { id: board.id },
+          relations: ["user"],
+        });
       } else {
         board = await Board.create({
-          user,
           public: true,
           name: ctx.request.body.name,
+          author: user.id,
+          user,
         });
         await board.save();
+        board = await Board.findOne({
+          where: { id: board.id },
+          relations: ["user"],
+        });
       }
       ctx.body = {
         status: "Success",
-        data: `Board created successfully`,
+        data: { Board: board },
       };
     } catch (error) {
+      ctx.status = 400;
       ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  static addCollaboratorView = async (ctx) => {
+    try {
+      let notvalid = validate(ctx.request.body, validator.access());
+      if (notvalid) throw { message: notvalid };
+      let board;
+      let user;
+      let userToAdd;
+      let accessTicket;
+      user = ctx.request.user;
+      board = await Board.findOne({
+        where: { id: ctx.request.params.boardId },
+      });
+      if (!board) throw { message: `No such board found` };
+
+      if (board.public == true)
+        throw {
+          message: `This board is already public, share the link with others so they can view it`,
+        };
+      if (!board.author == user.id)
+        throw { message: `You're not the owner of this board` };
+
+      userToAdd = await User.findOne({
+        where: { email: ctx.request.body.userEmail },
+      });
+      if (userToAdd.id == user.id)
+        throw { message: `You're already the owner of this board` };
+
+      if (!userToAdd) throw { message: `No such user found` };
+      accessTicket = await Access.findOne({
+        where: { userId: userToAdd.id, board },
+      });
+      if (!accessTicket) {
+        accessTicket = await Access.create({
+          userId: userToAdd.id,
+          board,
+          type: 2,
+        }).save();
+      }
+      accessTicket.type = 2;
+      await accessTicket.save();
+      ctx.body = {
+        status: "Success",
+        data: `User ${userToAdd.name} can now view your board`,
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  static addCollaboratorComment = async (ctx) => {
+    try {
+      let notvalid = validate(ctx.request.body, validator.access());
+      if (notvalid) throw { message: notvalid };
+      let board;
+      let user;
+      let userToAdd;
+      let accessTicket;
+      board = await Board.findOne({
+        where: { id: ctx.request.params.boardId },
+      });
+      if (!board) throw { message: `No such board found` };
+      if (board.public)
+        throw {
+          message: `This board is already public, share the link with others so they can view it`,
+        };
+      user = ctx.request.user;
+      if (!board.author == user.id)
+        throw { message: `You're not the owner of this board` };
+      userToAdd = await User.findOne({
+        where: { email: ctx.request.body.userEmail },
+      });
+      if (userToAdd.id == user.id)
+        throw { message: `You're already the owner of this board` };
+
+      if (!userToAdd) throw { message: `No such user found` };
+      accessTicket = await Access.findOne({
+        where: { userId: userToAdd.id, board },
+      });
+      if (!accessTicket) {
+        accessTicket = await Access.create({
+          userId: userToAdd.id,
+          board,
+          type: 2,
+        }).save();
+      }
+      accessTicket.type = 2;
+      await accessTicket.save();
+      ctx.body = {
+        status: "Success",
+        data: `User ${userToAdd.name} can now comment on your board`,
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  static addCollaborator = async (ctx) => {
+    try {
+      let notvalid = validate(ctx.request.body, validator.access());
+      if (notvalid) throw { message: notvalid };
+      let board;
+      let user;
+      let userToAdd;
+      let accessTicket;
+      board = await Board.findOne({
+        where: { id: ctx.request.params.boardId },
+      });
+      if (!board) throw { message: `No such board found` };
+      user = ctx.request.user;
+      if (!board.author == user.id)
+        throw { message: `You're not the owner of this board` };
+
+      userToAdd = await User.findOne({
+        where: { email: ctx.request.body.userEmail },
+      });
+      if (userToAdd.id == user.id)
+        throw { message: `You're already the owner of this board` };
+      if (!userToAdd) throw { message: `No such user found` };
+      accessTicket = await Access.findOne({
+        where: { userId: userToAdd.id, board },
+      });
+      if (!accessTicket) {
+        accessTicket = await Access.create({
+          userId: userToAdd.id,
+          board,
+          type: 3,
+        }).save();
+      }
+      accessTicket.type = 3;
+      await accessTicket.save();
+      ctx.body = {
+        status: "Success",
+        data: `User ${userToAdd.name} is now a collaborator`,
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
         data: error,
       };
     }

@@ -8,7 +8,10 @@ import {
   UpdateDateColumn,
   OneToOne,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
+import { Access } from "./access";
 import { Design } from "./design";
 import { Thread } from "./thread";
 import { User } from "./User";
@@ -32,6 +35,8 @@ export class Board extends BaseEntity {
   @Column()
   name: string;
 
+  @Column()
+  author: number;
 
   //-----------------------RELATIONS-----------------------
 
@@ -43,4 +48,7 @@ export class Board extends BaseEntity {
 
   @OneToMany((type) => Design, (design) => design.board)
   designs: Design[];
+
+  @OneToMany((type) => Access, (access) => access.board)
+  accesses: Access[];
 }

@@ -40,6 +40,27 @@ route.post(
   userController.makeBoard
 );
 
+//upload collaborators
+route.post(
+  "/v1/collaborator/view/:boardId",
+  userAuth,
+  errHandler,
+  userController.addCollaboratorView
+);
+
+route.post(
+  "/v1/collaborator/comment/:boardId",
+  userAuth,
+  errHandler,
+  userController.addCollaboratorComment
+);
+
+route.post(
+  "/v1/collaborator/:boardId",
+  userAuth,
+  errHandler,
+  userController.addCollaborator
+);
 
 //Admin routes
 route.post("/v1/plan", userController.login);

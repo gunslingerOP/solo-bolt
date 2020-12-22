@@ -6,6 +6,8 @@ import {
   OneToOne,
   BaseEntity,
   ManyToOne,
+  JoinTable,
+  ManyToMany,
 } from "typeorm";
 import { Board } from "./board";
 import { Comment } from "./comment";
@@ -38,6 +40,7 @@ export class User extends BaseEntity {
 
   @OneToMany((type) => Board, (board) => board.user)
   boards: Board[];
+
 
   @ManyToOne((type) => Plan, (plan) => plan.users)
   plan: Plan;

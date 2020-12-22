@@ -59,4 +59,12 @@ static plan = (must = true)=>({
     type:"boolean"
   }
 })
+
+static access = (must = true)=>({
+
+  userEmail:{
+    presence:must,
+    type:"string"
+  }
+})
 }
