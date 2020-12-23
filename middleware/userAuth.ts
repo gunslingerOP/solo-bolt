@@ -2,7 +2,7 @@ import config from "../config/index";
 import * as jwt from "jsonwebtoken";
 import { User } from "../src/entity/User";
 
- const Authenticate = async (ctx, next): Promise<object> => {
+ const Authenticate = async (ctx, next): Promise<void> => {
     try {
       
   let payload: any;
@@ -15,7 +15,7 @@ import { User } from "../src/entity/User";
     if (!user) throw  {message:`User does not exist, please complete the registration process.`};
     ctx.request.user = user;
     
-   return await next();
+    await next();
 } catch (error) {
  ctx.status= 400
  ctx.body={
