@@ -10,6 +10,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { Board } from "./board";
+import { Comment } from "./comment";
 import { Thread } from "./thread";
 import { User } from "./User";
 
@@ -36,6 +37,12 @@ export class Design extends BaseEntity {
 
   @ManyToOne((type) => Board, (board) => board.designs)
   board: Board;
+
+  @ManyToOne((type) => Comment, (comment) => comment.designs)
+  comment: Comment;
+
+  @OneToMany((type) => Thread, (thread) => thread.design)
+  threads: Thread[];
 
   @ManyToOne((type) => User, (user) => user.designs)
   user: User;

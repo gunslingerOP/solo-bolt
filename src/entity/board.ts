@@ -12,6 +12,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { Access } from "./access";
+import { Comment } from "./comment";
 import { Design } from "./design";
 import { Thread } from "./thread";
 import { User } from "./User";
@@ -43,8 +44,8 @@ export class Board extends BaseEntity {
   @ManyToOne((type) => User, (user) => user.boards)
   user: User;
 
-  @OneToMany((type) => Thread, (thread) => thread.board)
-  threads: Thread[];
+  @OneToMany((type) => Comment, (comment) => comment.board)
+  comments: Comment[];
 
   @OneToMany((type) => Design, (design) => design.board)
   designs: Design[];

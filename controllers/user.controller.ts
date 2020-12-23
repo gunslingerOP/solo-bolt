@@ -9,10 +9,12 @@ import config from "../config/index";
 import { Otp } from "../src/entity/otp";
 import { Design } from "../src/entity/design";
 import { Board } from "../src/entity/board";
-import { validators } from "validate.js";
+import { async, validators } from "validate.js";
 import { Plan } from "../src/entity/plan";
 import { basename } from "path";
 import { Access } from "../src/entity/access";
+import { Comment } from "../src/entity/comment";
+import { Thread } from "../src/entity/thread";
 var cloudinary = require("cloudinary").v2;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -284,15 +286,18 @@ export default class userController {
     try {
       let boardId;
       let board;
+      let img;
+      let user;
+      let design;
+      let access
+      access = ctx.request.access
       boardId = ctx.params.boardId;
       board = await Board.findOne({ where: { id: boardId } });
       if (!board) throw { message: `No such board found` };
       if (ctx.request.file == null && ctx.request.body.url == null)
         throw { message: `Please provide a design.` };
-      let img;
-      let user;
-      let design;
       user = ctx.request.user;
+      if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
       if (ctx.request.body.url) {
         design = await Design.create({
           user,
@@ -316,6 +321,52 @@ export default class userController {
       ctx.body = {
         status: "Success",
         data: `Design created successfully`,
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  static uploadDesignComment = async (ctx) => {
+    try {
+      let commentId;
+      let comment;
+      let img;
+      let user;
+      let design;
+      user = ctx.request.user;
+      commentId = ctx.params.commentId;
+      comment = await Comment.findOne({ where: { id: commentId } });
+      if (!comment) throw { message: `No such board found` };
+      if (ctx.request.file == null && ctx.request.body.url == null)
+        throw { message: `Please provide a design.` };
+      if (ctx.request.body.url) {
+        design = await Design.create({
+          user,
+          url: ctx.request.body.url,
+          comment
+        });
+        await design.save();
+      } else {
+        let fileName = ctx.file.originalname;
+        let path = `./uploads/${fileName}`;
+        await cloudinary.uploader.upload(path, function (error, result) {
+          img = result.url;
+        });
+        design = await Design.create({
+          user,
+          file: img,
+          comment
+        });
+        await design.save();
+      }
+      ctx.body = {
+        status: "Success",
+        data: {comment:comment},
       };
     } catch (error) {
       ctx.status = 400;
@@ -530,4 +581,171 @@ export default class userController {
       };
     }
   };
+
+
+  static makeThread= async (ctx)=>{
+    try {      
+      let notvalid = validate(ctx.request.body, validator.thread());
+      if (notvalid) throw { message: notvalid };
+      let body = ctx.request.body
+      let designId
+      let design
+      let board
+      let thread 
+      let comment
+      let user
+      user = ctx.request.user
+      board = ctx.request.board
+      if(body.domElement==null&&body.location==null) throw {message:`Please provide a location for the thread`}
+      designId = ctx.request.query.designId
+      if (!designId) throw {message:`please provide a designId as a query`}
+      design = await Design.findOne({where:{id:designId, board}})
+      if (!design) throw {message:`No such design found`}
+      thread = await Thread.findOne({
+        where:[ {location:body.location, design}, {domElement:body.domElement, design}]
+      })
+      if (thread) throw {message:`Thread already exists here`}
+
+      thread = await Thread.create({
+        edited:false,
+        review:false,
+        completed:false,
+        domElement:body.domElement,
+        location:body.location,
+        design
+      }).save()
+
+      comment= await Comment.create({
+        text:body.text,
+        completed:false,
+        review:false,
+        edited:false,
+        thread,
+        user
+      }).save()
+
+
+      ctx.body = {
+        status: "Success",
+        data: {comment:comment},
+      };
+      
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  }
+
+
+  static addComment= async (ctx)=>{
+    try {
+      let body = ctx.request.body
+      let thread
+      let access
+      let board
+      let user
+      let comment
+      let threadId = ctx.request.query.threadId
+      if(!threadId) throw{message:`Please send threadId as query`}
+      thread = await Thread.findOne({where:{id:threadId}})
+      if(!thread) throw{message:`No thread found`}
+      access = ctx.request.access
+      board = ctx.request.board
+      user = ctx.request.user
+      if (access!=2&&access!=3&&board.author!=user.id) throw {message:`You don't have permission to comment`}
+      comment= await Comment.create({
+        text:body.text,
+        completed:false,
+        review:false,
+        edited:false,
+        thread,
+        user
+      }).save()
+      ctx.body = {
+        status: "Success",
+        data: {comment:comment},
+      };
+    } catch (error) {
+
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+      
+    }
+  }
+
+static addBoardComment= async(ctx)=>{
+  try {
+    let body = ctx.request.body
+    let thread
+    let access
+    let board
+    let user
+    let comment
+
+    access = ctx.request.access
+    board = ctx.request.board
+    user = ctx.request.user
+    if (access!=2&&access!=3&&board.author!=user.id) throw {message:`You don't have permission to comment`}
+    comment= await Comment.create({
+      text:body.text,
+      completed:false,
+      review:false,
+      edited:false,
+      board,
+      user
+    }).save()
+    ctx.body = {
+      status: "Success",
+      data: {comment:comment},
+    };
+  } catch (error) {
+
+    ctx.status = 400;
+    ctx.body = {
+      status: "Failed",
+      data: error,
+    };
+    
+  }
+}
+
+
+  //get functions
+  static getBoardAll= async(ctx)=>{
+    try {
+      let user
+      let board
+      let design
+      user = ctx.request.user
+      board = ctx.request.board
+      design= await Design.find({where:{board},
+        join: {
+          alias: "design",
+          leftJoinAndSelect: {
+            threads: "design.threads",
+            comments: "threads.comments",
+          },
+        },
+      })
+
+
+      ctx.body = {
+        status:`Success`,
+        data:{board:board,design:design}
+      }
+      
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  }
 }

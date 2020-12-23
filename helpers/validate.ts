@@ -60,6 +60,30 @@ static plan = (must = true)=>({
   }
 })
 
+static thread = (must = true)=>({
+
+  location:{
+    type:"string"
+  },
+  domElement:{
+    type:"string"
+  },
+  text:{
+    presence:must,
+    type:"string"
+  }
+
+})
+
+static comment = (must = true)=>({
+
+  text:{
+    presence:must,
+    type:"string"
+  }
+
+})
+
 static access = (must = true)=>({
 
   userEmail:{

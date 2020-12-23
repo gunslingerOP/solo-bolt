@@ -7,7 +7,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  OneToMany,
+  JoinColumn,
 } from "typeorm";
+import { Board } from "./board";
+import { Design } from "./design";
 import { Thread } from "./thread";
 import { User } from "./User";
 
@@ -28,7 +32,7 @@ export class Comment extends BaseEntity {
   text: string;
 
   @Column()
-  file: string;
+  review: boolean;
 
   @Column()
   completed: boolean;
@@ -40,6 +44,12 @@ export class Comment extends BaseEntity {
   @ManyToOne((type) => User, (user) => user.comments)
   user: User;
 
+  @OneToMany((type) => Design, (design) => design.comment)
+  designs: Design[];
+
   @ManyToOne((type) => Thread, (thread) => thread.comments)
   thread: Thread;
+
+  @ManyToOne((type) => Board, (board) => board.comments)
+  board: Board;
 }

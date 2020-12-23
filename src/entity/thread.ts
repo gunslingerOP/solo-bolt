@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { Board } from "./board";
 import { Comment } from "./comment";
+import { Design } from "./design";
 
 @Entity("thread")
 export class Thread extends BaseEntity {
@@ -25,21 +26,25 @@ export class Thread extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column("point")
+  @Column({nullable:true})
   location: string;
+  
 
   @Column()
   edited: boolean;
 
-  @Column()
+  @Column({nullable:true})
   domElement: string;
 
   @Column()
   completed: boolean;
 
+  @Column()
+  review: boolean;
+
   //-----------------------RELATIONS-----------------------
-  @ManyToOne((type) => Board, (board) => board.threads)
-  board: Board;
+  @ManyToOne((type) => Design, (design) => design.threads)
+  design: Design;
 
   @OneToMany((type) => Comment, (comment) => comment.thread)
   comments: Comment[];
