@@ -40,6 +40,7 @@ export class Comment extends BaseEntity {
   @Column()
   edited: boolean;
 
+  
   //-----------------------RELATIONS-----------------------
   @ManyToOne((type) => User, (user) => user.comments)
   user: User;
