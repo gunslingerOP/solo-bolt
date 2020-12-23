@@ -30,6 +30,7 @@ export class Design extends BaseEntity {
   @Column({nullable:true})
   file: string;
 
+  
   @Column({nullable:true})
   url: string;
 
