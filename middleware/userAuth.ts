@@ -15,13 +15,13 @@ import { User } from "../src/entity/User";
     if (!user) throw  {message:`User does not exist, please complete the registration process.`};
     ctx.request.user = user;
     
-    await next();
-} catch (error) {
- ctx.status= 400
- ctx.body={
-    status:`Failed`,
-    data:error
- }
-}
+  } catch (error) {
+    ctx.status= 400
+    ctx.body={
+      status:`Failed`,
+      data:error
+    }
+  }
+  await next();
 };
 export default Authenticate
