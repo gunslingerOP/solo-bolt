@@ -284,6 +284,8 @@ export default class userController {
 
   static uploadDesign = async (ctx) => {
     try {
+      console.log(`Works here`);
+      
       let boardId;
       let board;
       let img;

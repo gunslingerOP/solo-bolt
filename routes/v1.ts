@@ -24,6 +24,14 @@ route.post("/v1/loginOtp/:userId", userController.loginOtp);
 
 //upload designs and create boards
 route.post(
+  "/v1/board",
+  userAuth,
+  errHandler,
+  userController.makeBoard
+);
+
+
+route.post(
   "/v1/design/:boardId",
   errHandler,
   userAuth,
@@ -32,13 +40,6 @@ route.post(
   userController.uploadDesign
 );
 
-route.post(
-  "/v1/board",
-  userAuth,
-  errHandler,
-  upload.single("file"),
-  userController.makeBoard
-);
 
 //upload collaborators
 route.post(

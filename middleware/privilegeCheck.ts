@@ -18,8 +18,8 @@ export default checkPermission = async (ctx, next): Promise<object> => {
     board = await Board.findOne({ where: { id: boardId } });
     if (!board) throw { message: `No board found` };
     ctx.request.board = board;
-    if (board.author==user.id) return next()
     if (!board.public) {
+    if (board.author==user.id) return next()
       access = await Access.findOne({ where: { board, userId: user.id } });
       if (!access)
         throw { message: `You do not have permission to view this board` };
