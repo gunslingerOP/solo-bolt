@@ -35,7 +35,7 @@ route.post(
   "/v1/design/:boardId",
   userAuth,
   checkPermission,
-  // upload.single("file"),
+  upload.single("file"),
   userController.uploadDesign
 );
 
@@ -98,7 +98,6 @@ route.get(
   errHandler,
   userAuth,
   checkPermission,
-  upload.single("file"),
   userController.getBoardAll
 );
 
