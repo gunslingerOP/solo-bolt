@@ -1,19 +1,18 @@
-const Koa = require('koa');
+const Koa = require("koa");
 const app = new Koa();
-var bodyParser = require('koa-bodyparser');
-import {createConnection } from "typeorm";
+var bodyParser = require("koa-bodyparser");
+const cors = require("@koa/cors");
+import { createConnection } from "typeorm";
 import route from "../routes/v1";
-let port = process.env.PORT || 5000
+let port = process.env.PORT || 5000;
 createConnection().then(async (connection) => {
-app.use(bodyParser());
+  app.use(cors());
 
- 
+  app.use(bodyParser());
 
-app.use(route.routes());
+  app.use(route.routes());
 
-app.listen(port, ()=>{
+  app.listen(port, () => {
     console.log(`Running on port ${port}`);
-    
+  });
 });
-
-})
