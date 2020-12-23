@@ -2,7 +2,7 @@ import config from "../config/index";
 import * as jwt from "jsonwebtoken";
 import { User } from "../src/entity/User";
 
- const Authenticate = async (ctx, next): Promise<void> => {
+ const Authenticate = async (ctx, next) => {
     try {
       
   let payload: any;

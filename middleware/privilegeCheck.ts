@@ -6,7 +6,7 @@ import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
 
 let checkPermission: any;
-export default checkPermission = async (ctx, next): Promise<void> => {
+export default checkPermission = async (ctx, next)=> {
   try {
     let access;
     let board;
