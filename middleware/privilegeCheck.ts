@@ -1,7 +1,4 @@
 import config from "../config/index";
-import * as jwt from "jsonwebtoken";
-import { User } from "../src/entity/User";
-import { Design } from "../src/entity/design";
 import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
 
@@ -27,7 +24,7 @@ export default checkPermission = async (ctx, next)=> {
       ctx.request.access = access;
     }
 
-    return await next();
+     await next();
   } catch (error) {
     ctx.status = 400;
     ctx.body = {
