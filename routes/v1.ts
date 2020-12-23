@@ -34,8 +34,8 @@ route.post(
 route.post(
   "/v1/design/:boardId",
   userAuth,
-  // checkPermission,
-  upload.single("file"),
+  checkPermission,
+  // upload.single("file"),
   userController.uploadDesign
 );
 
