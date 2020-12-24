@@ -4,7 +4,7 @@ import userAuth from "../middleware/userAuth";
 import errHandler from "../middleware/errHandler";
 import checkPermission from "../middleware/privilegeCheck"
 let router = require("koa-router");
-const multer = require("multer");
+const multer = require("@koa/multer");
 
 const storage = multer.diskStorage({
   destination: function (ctx, file, cb) {
