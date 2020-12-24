@@ -6,15 +6,15 @@ import checkPermission from "../middleware/privilegeCheck"
 let router = require("koa-router");
 const multer = require("@koa/multer");
 
-const storage = multer.diskStorage({
-  destination: function (ctx, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function (ctx, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
+// const storage = multer.diskStorage({
+//   destination: function (ctx, file, cb) {
+//     cb(null, "./uploads/");
+//   },
+//   filename: function (ctx, file, cb) {
+//     cb(null, file.originalname);
+//   },
+// });
+// const upload = multer({ storage: storage }).single("file");
 
 
 let route = router();
@@ -35,9 +35,9 @@ route.post(
 
 route.post(
   "/v1/design/:boardId",
-  userAuth,
-  checkPermission,
-  upload.single("file"),
+  // userAuth,
+  // checkPermission,
+  // upload,
   userController.uploadDesign
 );
 
@@ -81,7 +81,7 @@ route.post(
   userAuth,
   checkPermission,
   errHandler,
-  upload.single("file"),
+  // upload,
   userController.uploadDesignComment
 );
 
