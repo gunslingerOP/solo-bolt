@@ -286,7 +286,6 @@ export default class userController {
 
   static uploadDesign = async (ctx) => {
     try {
-      
       let board;
       let img;
       let user;
@@ -303,7 +302,7 @@ export default class userController {
     
       console.log(`board author is`+board.author);
       console.log(`User id is ` + user.id);
-      // if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
+      if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
       console.log(`after if access`);
       
       if (ctx.request.body.url) {
@@ -317,9 +316,8 @@ export default class userController {
       } else {
         console.log(`works file`);
 
-
        img = ctx.request.file.path;
-
+       
         design = await Design.create({
           user,
           file: img,

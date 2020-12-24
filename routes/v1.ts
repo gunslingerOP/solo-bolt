@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   folder: 'jomwedding',
   allowedFormats: ['jpg', 'png'],
 });
-const upload = multer().single("file");
+const upload = multer({storage:storage}).single("file");
 
 let route = router();
 //user Register, login and verify
