@@ -36,7 +36,7 @@ route.post(
   "/v1/design/:boardId",
   userAuth,
   checkPermission,
-  upload,
+  // upload,
   userController.uploadDesign
 );
 
@@ -85,7 +85,7 @@ route.post(
   userAuth,
   checkPermission,
   errHandler,
-  upload,
+  // upload,
   userController.uploadDesignComment
 );
 
