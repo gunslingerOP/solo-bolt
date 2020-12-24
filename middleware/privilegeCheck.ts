@@ -10,10 +10,12 @@ export default checkPermission = async (ctx, next) => {
     let boardId;
     boardId = ctx.request.params.boardId;
     user = ctx.request.user;
+console.log(`works here`);
 
     board = await Board.findOne({ where: { id: boardId } });
     
     if (!board) throw { message: `No board found` };
+    console.log(`after board error`);
     
     ctx.request.board = board;
     if (!board.public) {

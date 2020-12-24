@@ -298,8 +298,10 @@ export default class userController {
       
       user = ctx.request.user;
     
-
-      if (!access|| access.type!=3 && board.author!=user.id) throw {message:`You are not a collaborator`}
+      if(access){
+        if (access.type!=3 ) throw {message:`You are not allowed to add designs`}
+      }
+      if (board.author!=user.id) throw {message:`You have no access to this board`}
       
       if (ctx.request.body.url) {
         design = await Design.create({
