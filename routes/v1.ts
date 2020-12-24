@@ -15,12 +15,12 @@ const multer = require("@koa/multer");
 //   allowedFormats: ["jpg", "png"],
 // });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'jomwedding',
-  allowedFormats: ['jpg', 'png'],
-});
-const upload = multer({storage:storage}).single("file");
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   folder: 'jomwedding',
+//   allowedFormats: ['jpg', 'png'],
+// });
+const upload = multer().single("file");
 
 let route = router();
 //user Register, login and verify
