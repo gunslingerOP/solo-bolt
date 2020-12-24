@@ -312,12 +312,8 @@ export default class userController {
       } else {
         console.log(ctx.request.file);
         
-        // var buf = ctx.request.file.buffer.toString('base64');
-        
-     
-        // await cloudinary.uploader.upload("data:image/png;base64," + buf, function (error, result) {
-        //   img = result.url;
-        // });
+       img = ctx.request.file.path;
+
         design = await Design.create({
           user,
           file: img,
