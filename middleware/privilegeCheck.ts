@@ -16,8 +16,7 @@ export default checkPermission = async (ctx, next)=> {
     if (!board) throw { message: `No board found` };
     ctx.request.board = board;
     if (!board.public) {
-      if (board.author == user.id)   return await next();
-
+      if (board.author == user.id) await next();
 
       access = await Access.findOne({ where: { board, userId: user.id } });
       if (!access)
@@ -25,8 +24,8 @@ export default checkPermission = async (ctx, next)=> {
       ctx.request.access = access;
     }
 
-    return await next();
-} catch (error) {
+     await next();
+  } catch (error) {
     ctx.status = 400;
     ctx.body = {
       status: `Failed`,

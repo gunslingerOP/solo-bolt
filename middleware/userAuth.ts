@@ -22,6 +22,6 @@ import { User } from "../src/entity/User";
       data:error
     }
   }
-  return await next();
+  await next();
 };
 export default Authenticate
