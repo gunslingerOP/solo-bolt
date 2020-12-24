@@ -44,4 +44,15 @@ const comparePassword = async (plainPassword, hash) =>
     })();
   }
 
-export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator };
+
+
+  const ReEr=async (ctx, error)=>{
+    ctx.status=400
+    ctx.body={
+      status:`Failed`,
+      data:error
+    }
+  }
+
+  
+export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator, ReEr };
