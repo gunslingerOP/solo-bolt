@@ -8,11 +8,7 @@ let port = process.env.PORT || 3000;
 createConnection().then(async (connection) => {
     app.use(cors());
 
-  app.use(bodyParser({
-   formidable:{uploadDir: './uploads'},    //This is where the files would come
-   multipart: true,
-   urlencoded: true
-}));
+  app.use(bodyParser());
 
   app.use(route.routes());
 

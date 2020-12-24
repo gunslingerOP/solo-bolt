@@ -5,7 +5,6 @@ import errHandler from "../middleware/errHandler";
 import checkPermission from "../middleware/privilegeCheck"
 let router = require("koa-router");
 const multer = require("@koa/multer");
-const path = require('path');
 
 const upload = multer().single("file");
 

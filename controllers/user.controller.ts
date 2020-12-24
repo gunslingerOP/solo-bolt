@@ -309,6 +309,7 @@ export default class userController {
         await design.save();
       } else {
         var buf = ctx.request.file.buffer.toString('base64');
+        
         await cloudinary.uploader.upload("data:image/png;base64," + buf, function (error, result) {
           img = result.url;
         });
