@@ -8,12 +8,17 @@ import { ReEr } from "../helpers/tools";
       
   let payload: any;
   const token = ctx.request.headers.token;
-      
-    payload = jwt.verify(token, config.jwtSecret).catch(error=>ReEr(ctx, error));
+      try {
+        payload = jwt.verify(token, config.jwtSecret)
+        
+      } catch (error) {
+        
+        return ReEr(ctx, error)
+      }
     let   user = await User.findOne({
         where: { id: payload.id, verified: true },
     });
-    if (!user)  ReEr(ctx, {message:`User does not exist, please complete the registration process.`})
+    if (!user) return ReEr(ctx, {message:`User does not exist, please complete the registration process.`})
     ctx.request.user = user;
     
     await next();
