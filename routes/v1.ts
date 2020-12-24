@@ -8,13 +8,6 @@ var cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require("@koa/multer");
 
-
-// var storage = cloudinaryStorage({
-//   cloudinary: cloudinary,
-//   folder: "demo",
-//   allowedFormats: ["jpg", "png"],
-// });
-
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   folder: 'jomwedding',
