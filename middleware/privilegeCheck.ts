@@ -1,3 +1,4 @@
+import { ReEr } from "../helpers/tools";
 import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
 
@@ -14,14 +15,14 @@ console.log(`works here`);
 
     board = await Board.findOne({ where: { id: boardId } });
     
-    if (!board) throw { message: `No board found` };
+    if (!board) return ReEr(ctx,{message: `No board found`} )
     console.log(`after board error`);
     
     ctx.request.board = board;
     if (!board.public) {
       access = await Access.findOne({ where: { board, userId: user.id } });    
       if (!access && board.author != user.id)
-        throw { message: `You do not have permission to view this board` };
+         return ReEr(ctx,{ message: `You do not have permission to view this board` } )
         if(access){
             ctx.request.access = access;
 
