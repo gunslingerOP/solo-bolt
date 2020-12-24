@@ -296,8 +296,13 @@ export default class userController {
       board = ctx.request.board
       if (ctx.request.file == null && ctx.request.body.url == null)
       throw { message: `Please provide a design.` };
+      console.log(`before user definition`);
+      
       user = ctx.request.user;
+      console.log(`after user def`);
+      
       if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
+      console.log(`after if access`);
       
       if (ctx.request.body.url) {
         console.log(`works url`);
