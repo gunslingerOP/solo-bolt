@@ -5,6 +5,7 @@ import errHandler from "../middleware/errHandler";
 import checkPermission from "../middleware/privilegeCheck"
 let router = require("koa-router");
 const multer = require("@koa/multer");
+
 const storage = multer.diskStorage({
   destination: function (ctx, file, cb) {
     cb(null, "./uploads/");
@@ -14,6 +15,7 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+
 
 let route = router();
 //user Register, login and verify
