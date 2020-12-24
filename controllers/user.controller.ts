@@ -302,8 +302,8 @@ export default class userController {
       user = ctx.request.user;
       console.log(`after user def`);
       console.log(access);
-      console.log(board.author);
-      console.log(user.id);
+      console.log(`board author is`+board.author);
+      console.log(`User id is ` + user.id);
       if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
       console.log(`after if access`);
       
