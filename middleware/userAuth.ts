@@ -15,6 +15,7 @@ import { User } from "../src/entity/User";
     if (!user) throw  {message:`User does not exist, please complete the registration process.`};
     ctx.request.user = user;
     
+    await next();
   } catch (error) {
     ctx.status= 400
     ctx.body={
@@ -22,6 +23,5 @@ import { User } from "../src/entity/User";
       data:error
     }
   }
-  return await next();
 };
 export default Authenticate

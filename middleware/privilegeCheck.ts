@@ -12,7 +12,9 @@ export default checkPermission = async (ctx, next) => {
     user = ctx.request.user;
 
     board = await Board.findOne({ where: { id: boardId } });
+    
     if (!board) throw { message: `No board found` };
+    
     ctx.request.board = board;
     if (!board.public) {
       access = await Access.findOne({ where: { board, userId: user.id } });    
@@ -23,6 +25,7 @@ export default checkPermission = async (ctx, next) => {
 
         }
     }
+    await next();
 } catch (error) {
     ctx.status = 400;
     ctx.body = {
@@ -30,5 +33,4 @@ export default checkPermission = async (ctx, next) => {
         data: error,
     };
 }
-return await next();
 };
