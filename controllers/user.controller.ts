@@ -296,11 +296,11 @@ export default class userController {
       board = ctx.request.board
       if (ctx.request.file == null && ctx.request.body.url == null)
       throw { message: `Please provide a design.` };
-      console.log(`works`);
       user = ctx.request.user;
       if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
       
       if (ctx.request.body.url) {
+        console.log(`works url`);
         design = await Design.create({
           user,
           url: ctx.request.body.url,
@@ -308,6 +308,8 @@ export default class userController {
         });
         await design.save();
       } else {
+        console.log(`works file`);
+
         console.log(ctx.request.file);
         
         var buf = ctx.request.file.buffer.toString('base64');
