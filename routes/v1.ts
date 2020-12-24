@@ -75,7 +75,7 @@ route.post(
   userAuth,
   checkPermission,
   errHandler,
-  // upload,
+  upload,
   userController.uploadDesignComment
 );
 

@@ -284,7 +284,6 @@ export default class userController {
 
   static uploadDesign = async (ctx) => {
     try {
-      console.log(`Works here`);
       
       let boardId;
       let board;
@@ -300,7 +299,6 @@ export default class userController {
         throw { message: `Please provide a design.` };
       user = ctx.request.user;
       if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
-      console.log(ctx.request.file);
       
       if (ctx.request.body.url) {
         design = await Design.create({
@@ -310,8 +308,6 @@ export default class userController {
         });
         await design.save();
       } else {
-        let fileName = ctx.file.originalname;
-        let path = `./uploads/${fileName}`;
         var buf = ctx.request.file.buffer.toString('base64');
         await cloudinary.uploader.upload("data:image/png;base64," + buf, function (error, result) {
           img = result.url;
