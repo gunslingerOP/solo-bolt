@@ -7,7 +7,6 @@ let router = require("koa-router");
 const multer = require("@koa/multer");
 const path = require('path');
 
-const storage = multer.memoryStorage();
 const upload = multer().single("file");
 
 
