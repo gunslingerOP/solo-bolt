@@ -15,12 +15,12 @@ const multer = require("@koa/multer");
 //   allowedFormats: ["jpg", "png"],
 // });
 
-// const storage = new CloudinaryStorage({
-//   cloudinary: cloudinary,
-//   folder: 'jomwedding',
-//   allowedFormats: ['jpg', 'png'],
-// });
-// const upload = multer().single("file");
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'jomwedding',
+  allowedFormats: ['jpg', 'png'],
+});
+const upload = multer().single("file");
 
 let route = router();
 //user Register, login and verify
@@ -36,7 +36,7 @@ route.post(
   "/v1/design/:boardId",
   userAuth,
   checkPermission,
-  // upload,
+  upload,
   userController.uploadDesign
 );
 
@@ -85,7 +85,7 @@ route.post(
   userAuth,
   checkPermission,
   errHandler,
-  // upload,
+  upload,
   userController.uploadDesignComment
 );
 
