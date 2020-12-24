@@ -286,7 +286,6 @@ export default class userController {
 
   static uploadDesign = async (ctx) => {
     try {
-      console.log(`works`);
       
       let boardId;
       let board;
@@ -299,10 +298,11 @@ export default class userController {
       board = await Board.findOne({ where: { id: boardId } });
       if (!board) throw { message: `No such board found` };
       if (ctx.request.file == null && ctx.request.body.url == null)
-        throw { message: `Please provide a design.` };
+      throw { message: `Please provide a design.` };
       user = ctx.request.user;
       if (access!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
       
+      console.log(`works`);
       if (ctx.request.body.url) {
         design = await Design.create({
           user,
