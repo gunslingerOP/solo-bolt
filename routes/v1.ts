@@ -20,7 +20,7 @@ const multer = require("@koa/multer");
 //   folder: 'jomwedding',
 //   allowedFormats: ['jpg', 'png'],
 // });
-const upload = multer().single("file");
+// const upload = multer().single("file");
 
 let route = router();
 //user Register, login and verify
