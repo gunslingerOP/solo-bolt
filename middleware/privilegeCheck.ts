@@ -1,4 +1,3 @@
-import config from "../config/index";
 import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
 
@@ -19,14 +18,17 @@ export default checkPermission = async (ctx, next) => {
       access = await Access.findOne({ where: { board, userId: user.id } });    
       if (!access && board.author != user.id)
         throw { message: `You do not have permission to view this board` };
-      ctx.request.access = access;
+        if(access){
+            ctx.request.access = access;
+
+        }
     }
-    await next();
-  } catch (error) {
+} catch (error) {
     ctx.status = 400;
     ctx.body = {
-      status: `Failed`,
-      data: error,
+        status: `Failed`,
+        data: error,
     };
-  }
+}
+return await next();
 };

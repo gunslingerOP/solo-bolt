@@ -299,7 +299,7 @@ export default class userController {
       user = ctx.request.user;
     
 
-      if (access.type!=3&&board.author!=user.id) throw {message:`You are not a collaborator`}
+      if (!access|| access.type!=3 && board.author!=user.id) throw {message:`You are not a collaborator`}
       
       if (ctx.request.body.url) {
         design = await Design.create({
@@ -309,7 +309,6 @@ export default class userController {
         });
         await design.save();
       } else {
-        console.log(`works file`);
 
        img = ctx.request.file.path;
        
