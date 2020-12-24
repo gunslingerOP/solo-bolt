@@ -5,6 +5,8 @@ import { emailVerifyOtp, hashMyPassword, otpGenerator } from "../helpers/tools";
 import * as jwt from "jsonwebtoken";
 import { closestIndexTo, format } from "date-fns";
 import { User } from "../src/entity/User";
+const streamifier = require('streamifier')
+
 import config from "../config/index";
 import { Otp } from "../src/entity/otp";
 import { Design } from "../src/entity/design";
@@ -308,11 +310,14 @@ export default class userController {
         });
         await design.save();
       } else {
-        var buf = ctx.request.file.buffer.toString('base64');
+        console.log(ctx.request.file);
         
-        await cloudinary.uploader.upload("data:image/png;base64," + buf, function (error, result) {
-          img = result.url;
-        });
+        // var buf = ctx.request.file.buffer.toString('base64');
+        
+     
+        // await cloudinary.uploader.upload("data:image/png;base64," + buf, function (error, result) {
+        //   img = result.url;
+        // });
         design = await Design.create({
           user,
           file: img,

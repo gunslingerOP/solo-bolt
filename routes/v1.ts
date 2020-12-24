@@ -2,12 +2,25 @@ import userController from "../controllers/user.controller";
 import limiter from "../middleware/rateLimiter";
 import userAuth from "../middleware/userAuth";
 import errHandler from "../middleware/errHandler";
-import checkPermission from "../middleware/privilegeCheck"
+import checkPermission from "../middleware/privilegeCheck";
 let router = require("koa-router");
+var cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require("@koa/multer");
 
-const upload = multer().single("file");
 
+// var storage = cloudinaryStorage({
+//   cloudinary: cloudinary,
+//   folder: "demo",
+//   allowedFormats: ["jpg", "png"],
+// });
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'jomwedding',
+  allowedFormats: ['jpg', 'png'],
+});
+const upload = multer({storage:storage}).single("file");
 
 let route = router();
 //user Register, login and verify
@@ -17,13 +30,7 @@ route.post("/v1/login", userController.login);
 route.post("/v1/loginOtp/:userId", userController.loginOtp);
 
 //upload designs and create boards
-route.post(
-  "/v1/board",
-  userAuth,
-  errHandler,
-  userController.makeBoard
-);
-
+route.post("/v1/board", userAuth, errHandler, userController.makeBoard);
 
 route.post(
   "/v1/design/:boardId",
@@ -33,7 +40,6 @@ route.post(
   upload,
   userController.uploadDesign
 );
-
 
 //upload collaborators
 route.post(
@@ -59,7 +65,13 @@ route.post(
 
 //adding comments with their designs to boards and board designs
 
-route.post("/v1/thread/:boardId", userAuth, checkPermission , errHandler, userController.makeThread);
+route.post(
+  "/v1/thread/:boardId",
+  userAuth,
+  checkPermission,
+  errHandler,
+  userController.makeThread
+);
 
 route.post(
   "/v1/comment/:boardId",
@@ -95,8 +107,6 @@ route.get(
   checkPermission,
   userController.getBoardAll
 );
-
-
 
 //Admin routes
 route.post("/v1/plan", userController.login);
