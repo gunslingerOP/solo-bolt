@@ -286,6 +286,7 @@ export default class userController {
 
   static uploadDesign = async (ctx) => {
     try {
+      console.log(`works`);
       
       let boardId;
       let board;
@@ -330,7 +331,7 @@ export default class userController {
       }
       ctx.body = {
         status: "Success",
-        data: `Design created successfully`,
+        data: {design},
       };
     } catch (error) {
       ctx.status = 400;
