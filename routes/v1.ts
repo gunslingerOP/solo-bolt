@@ -29,7 +29,7 @@ route.post(
   "/v1/design/:boardId",
   userAuth,
   checkPermission,
-  upload,
+  // upload,
   userController.uploadDesign
 );
 
