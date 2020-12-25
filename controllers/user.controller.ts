@@ -296,13 +296,10 @@ export default class userController {
       let user;
       let design;
       let access;
+
+      let length = Object.keys(ctx.request.body).length;
       access = ctx.request.access;
       board = ctx.request.board;
-      console.log(`function works`);
-      
-      // console.log(ctx.request.files); // if multipart or urlencoded
-      if (ctx.request.files.file.path == null && ctx.request.body.url == null)
-        throw { message: `Please provide a design.` };
 
       user = ctx.request.user;
 
@@ -313,15 +310,22 @@ export default class userController {
       if (board.author != user.id)
         throw { message: `You have no access to this board` };
 
+      if (!ctx.request.files) {
+        if (length == 0)
+          return ReEr(ctx, `Please provide a design as a file or a URL`);
+        let notValid = validate(ctx.request.body, validator.url());
+        if (notValid) throw { message: notValid };
+      }
+
       if (ctx.request.body.url) {
         design = await Design.create({
           user,
           url: ctx.request.body.url,
           board,
         });
+        if (!design) return ReEr(ctx, `Design wasn't created`);
         await design.save();
       } else {
-        // img = ctx.request.file.path;
         let filename = ctx.request.files.file.path;
 
         await cloudinary.uploader
@@ -360,13 +364,27 @@ export default class userController {
       let commentId;
       let comment;
       let img;
+      let access;
       let user;
       let design;
+      let length = Object.keys(ctx.request.body).length;
+      access = ctx.request.access;
       user = ctx.request.user;
       commentId = ctx.params.commentId;
-      if (ctx.request.file == null && ctx.request.body.url == null)
-        throw { message: `Please provide a design.` };
-      comment = await Comment.findOne({ where: { id: commentId } });
+      if (access) {
+        if (access != 2 && access != 3)
+          return ReEr(
+            ctx,
+            `You do not have permission to comment on this board`
+          );
+      }
+      if (!ctx.request.files) {
+        if (length == 0)
+          return ReEr(ctx, `Please provide a design as a file or a URL`);
+        let notValid = validate(ctx.request.body, validator.url());
+        if (notValid) throw { message: notValid };
+      }
+      comment = await Comment.findOne({ where: { id: commentId, user } });
       if (!comment) throw { message: `No comment found` };
       if (ctx.request.body.url) {
         design = await Design.create({
@@ -376,7 +394,7 @@ export default class userController {
         });
         await design.save();
       } else {
-        let filename = ctx.request.files[0].path;
+        let filename = ctx.request.files.file.path;
         await cloudinary.uploader
           .upload(filename, { tags: "gotemps", resource_type: "auto" })
           .then(function (file) {
@@ -396,7 +414,7 @@ export default class userController {
       }
       ctx.body = {
         status: "Success",
-        data: { comment: comment },
+        data: { design:design },
       };
     } catch (error) {
       ctx.status = 400;
@@ -720,12 +738,11 @@ export default class userController {
       board = ctx.request.board;
       user = ctx.request.user;
 
-      if(!board.public){
+      if (!board.public) {
         if (access != 2 && access != 3 && board.author != user.id)
-        throw { message: `You don't have permission to comment` };
+          throw { message: `You don't have permission to comment` };
       }
-      console.log(ctx.request.body);
-      
+
       comment = await Comment.create({
         text: body.text,
         completed: false,

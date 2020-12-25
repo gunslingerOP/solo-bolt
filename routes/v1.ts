@@ -63,7 +63,7 @@ route.post(
 );
 
 route.post(
-  "/v1/design/comment/:commentId",
+  "/v1/board/comment/design/:boardId/:commentId",
   userAuth,
   checkPermission,
   errHandler,

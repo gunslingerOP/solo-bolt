@@ -11,12 +11,10 @@ export default checkPermission = async (ctx, next) => {
     let boardId;
     boardId = ctx.request.params.boardId;
     user = ctx.request.user;
-console.log(`works here`);
 
     board = await Board.findOne({ where: { id: boardId } });
     
     if (!board) return ReEr(ctx,{message: `No board found`} )
-    console.log(ctx.request.files);
     
     ctx.request.board = board;
     if (!board.public) {
@@ -28,7 +26,6 @@ console.log(`works here`);
             
         }
     }
-    console.log(`before perm check`);
     await next();
 } catch (error) {
     ctx.status = 400;

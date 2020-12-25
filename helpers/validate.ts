@@ -23,6 +23,13 @@ static verify = (must = true)=>({
   }
 })
 
+static url = (must = true)=>({
+  url:{
+    presence:must,
+    type:"string"
+  }
+})
+
 static board = (must = true)=>({
   private:{
     presence:must,
