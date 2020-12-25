@@ -8,12 +8,38 @@ var cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require("@koa/multer");
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'jomwedding',
-  allowedFormats: ['jpg', 'png'],
-});
-const upload = multer({storage:storage}).single("file");
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   folder: 'jomwedding',
+//   allowedFormats: ['jpg', 'png'],
+// });
+// const upload = multer({storage:storage}).single("file");
+
+const formidable = require('formidable');
+
+
+let middleware = async (ctx, next)=>{
+  const form = formidable({ multiples: true });
+
+  // not very elegant, but that's for now if you don't want to use `koa-better-body`
+  // or other middlewares.
+  await new Promise<void>(async (resolve, reject) => {
+    form.parse(ctx.req, async (err, fields, files) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      ctx.set('Content-Type', 'application/json');
+      ctx.status = 200;
+      ctx.state = { fields, files };
+      ctx.body = JSON.stringify(ctx.state, null, 2);
+      resolve();
+    });
+    await next();
+    return;
+  });
+}
 
 let route = router();
 //user Register, login and verify
@@ -29,7 +55,7 @@ route.post(
   "/v1/design/:boardId",
   userAuth,
   checkPermission,
-  upload,
+  // upload,
   userController.uploadDesign
 );
 
@@ -78,7 +104,7 @@ route.post(
   userAuth,
   checkPermission,
   errHandler,
-  upload,
+  // upload,
   userController.uploadDesignComment
 );
 
