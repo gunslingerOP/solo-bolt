@@ -645,8 +645,8 @@ export default class userController {
       board = ctx.request.board;
       if (body.domElement == null && body.location == null)
         throw { message: `Please provide a location for the thread` };
-      designId = ctx.request.query.designId;
-      if (!designId) throw { message: `please provide a designId as a query` };
+      designId = ctx.request.params.designId;
+      if (!designId) throw { message: `please provide a designId as params` };
       design = await Design.findOne({ where: { id: designId, board } });
       if (!design) throw { message: `No such design found` };
       thread = await Thread.findOne({
@@ -690,6 +690,8 @@ export default class userController {
 
   static addComment = async (ctx) => {
     try {
+      let threadId = ctx.request.params.threadId;
+      if (!threadId) throw { message: `Please send threadId as params` };
       let notvalid = validate(ctx.request.body, validator.comment());
       if (notvalid) throw { message: notvalid };
       let body = ctx.request.body;
@@ -698,13 +700,11 @@ export default class userController {
       let board;
       let user;
       let comment;
-      let threadId = ctx.request.params.threadId;
-      if (!threadId) throw { message: `Please send threadId as params` };
-      thread = await Thread.findOne({ where: { id: threadId } });
-      if (!thread) throw { message: `No thread found` };
       access = ctx.request.access;
       board = ctx.request.board;
       user = ctx.request.user;
+      thread = await Thread.findOne({ where: { id: threadId } });
+      if (!thread) throw { message: `No thread found` };
       if (access != 2 && access != 3 && board.author != user.id)
         throw { message: `You don't have permission to comment` };
       comment = await Comment.create({

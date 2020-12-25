@@ -47,7 +47,7 @@ route.post(
 //adding comments with their designs to boards and board designs
 
 route.post(
-  "/v1/thread/:boardId",
+  "/v1/board/design/thread/:boardId/:designId",
   userAuth,
   checkPermission,
   errHandler,
