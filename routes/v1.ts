@@ -55,7 +55,7 @@ route.post(
 );
 
 route.post(
-  "/v1/comment/:boardId",
+  "/v1/thread/comment/:boardId/:threadId",
   userAuth,
   checkPermission,
   errHandler,

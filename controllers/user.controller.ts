@@ -690,14 +690,16 @@ export default class userController {
 
   static addComment = async (ctx) => {
     try {
+      let notvalid = validate(ctx.request.body, validator.comment());
+      if (notvalid) throw { message: notvalid };
       let body = ctx.request.body;
       let thread;
       let access;
       let board;
       let user;
       let comment;
-      let threadId = ctx.request.query.threadId;
-      if (!threadId) throw { message: `Please send threadId as query` };
+      let threadId = ctx.request.params.threadId;
+      if (!threadId) throw { message: `Please send threadId as params` };
       thread = await Thread.findOne({ where: { id: threadId } });
       if (!thread) throw { message: `No thread found` };
       access = ctx.request.access;
