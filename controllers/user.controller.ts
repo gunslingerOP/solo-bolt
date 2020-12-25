@@ -298,7 +298,7 @@ export default class userController {
       let access;
       access = ctx.request.access;
       board = ctx.request.board;
-      console.log(ctx.request.files.file.path); // if multipart or urlencoded
+      console.log(ctx.request.files); // if multipart or urlencoded
       if (ctx.request.files.file.path == null && ctx.request.body.url == null)
         throw { message: `Please provide a design.` };
 

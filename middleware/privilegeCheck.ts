@@ -16,8 +16,9 @@ console.log(`works here`);
     board = await Board.findOne({ where: { id: boardId } });
     
     if (!board) return ReEr(ctx,{message: `No board found`} )
+    console.log(ctx.request.files); // if multipart or urlencoded
     console.log(`after board error`);
-    
+
     ctx.request.board = board;
     if (!board.public) {
       access = await Access.findOne({ where: { board, userId: user.id } });    
