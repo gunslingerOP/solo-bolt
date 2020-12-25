@@ -1,7 +1,12 @@
 import * as validate from "validate.js";
 require("dotenv").config();
 import validator from "../helpers/validate";
-import { emailVerifyOtp, hashMyPassword, otpGenerator } from "../helpers/tools";
+import {
+  emailVerifyOtp,
+  hashMyPassword,
+  otpGenerator,
+  ReEr,
+} from "../helpers/tools";
 import * as jwt from "jsonwebtoken";
 import { closestIndexTo, format } from "date-fns";
 import { User } from "../src/entity/User";
@@ -293,8 +298,8 @@ export default class userController {
       let access;
       access = ctx.request.access;
       board = ctx.request.board;
-      // console.log(ctx.request.files); // if multipart or urlencoded
-      if (ctx.request.files == null && ctx.request.body.url == null)
+      console.log(ctx.request.files.file.path); // if multipart or urlencoded
+      if (ctx.request.files.file.path == null && ctx.request.body.url == null)
         throw { message: `Please provide a design.` };
 
       user = ctx.request.user;
@@ -315,20 +320,18 @@ export default class userController {
         await design.save();
       } else {
         // img = ctx.request.file.path;
-        let filename = ctx.request.files[0].path;
-        
-      await  cloudinary.uploader
+        let filename = ctx.request.files.file.path;
+
+        await cloudinary.uploader
           .upload(filename, { tags: "gotemps", resource_type: "auto" })
           .then(function (file) {
-            
-            img = file.url; 
+            img = file.url;
           })
           .catch(function (err) {
             if (err) {
-              console.warn(err);
+              return ReEr(ctx, err);
             }
           });
-console.log(img);
 
         design = await Design.create({
           user,
@@ -359,10 +362,10 @@ console.log(img);
       let design;
       user = ctx.request.user;
       commentId = ctx.params.commentId;
-      comment = await Comment.findOne({ where: { id: commentId } });
-      if (!comment) throw { message: `No such board found` };
       if (ctx.request.file == null && ctx.request.body.url == null)
         throw { message: `Please provide a design.` };
+      comment = await Comment.findOne({ where: { id: commentId } });
+      if (!comment) throw { message: `No comment found` };
       if (ctx.request.body.url) {
         design = await Design.create({
           user,
@@ -371,11 +374,17 @@ console.log(img);
         });
         await design.save();
       } else {
-        let fileName = ctx.file.originalname;
-        let path = `./uploads/${fileName}`;
-        await cloudinary.uploader.upload(path, function (error, result) {
-          img = result.url;
-        });
+        let filename = ctx.request.files[0].path;
+        await cloudinary.uploader
+          .upload(filename, { tags: "gotemps", resource_type: "auto" })
+          .then(function (file) {
+            img = file.url;
+          })
+          .catch(function (err) {
+            if (err) {
+              return ReEr(ctx, err);
+            }
+          });
         design = await Design.create({
           user,
           file: img,
@@ -700,7 +709,6 @@ console.log(img);
   static addBoardComment = async (ctx) => {
     try {
       let body = ctx.request.body;
-      let thread;
       let access;
       let board;
       let user;
@@ -709,8 +717,13 @@ console.log(img);
       access = ctx.request.access;
       board = ctx.request.board;
       user = ctx.request.user;
-      if (access != 2 && access != 3 && board.author != user.id)
+
+      if(!board.public){
+        if (access != 2 && access != 3 && board.author != user.id)
         throw { message: `You don't have permission to comment` };
+      }
+      console.log(ctx.request.body);
+      
       comment = await Comment.create({
         text: body.text,
         completed: false,
