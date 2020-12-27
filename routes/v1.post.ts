@@ -15,7 +15,7 @@ route.post("/v1/loginOtp/:userId", userController.loginOtp);
 route.post("/v1/credentials/change",userAuth, userController.changeCredentials);
 route.post("/v1/credentials/change/otp",userAuth, userController.verifyCredentials);
 route.post("/v1/profile/change",userAuth, userController.changeProfile);
-route.post("/v1/profile/delete/:profileId", userController.deleteProfile);
+route.delete("/v1/profile/delete/:profileId", userController.deleteProfile);
 
 
 //upload designs and create boards

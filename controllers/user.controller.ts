@@ -537,15 +537,13 @@ let profile
 
   static deleteProfile = async (ctx) => {
     try {
+      let profile
       if (!ctx.request.params.profileId)
         throw { message: `Please send a profileId as request params` };
       let user = ctx.request.user;
       let profileId = ctx.request.params.profileId;
-
-      await Profile.delete({
-        id: profileId,
-        user,
-      });
+      profile = await Profile.findOne({where:{id:profileId, user}})
+     await profile.delete()
 
       ctx.body={
         status:`Success`,
