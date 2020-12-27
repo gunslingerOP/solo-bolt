@@ -787,11 +787,12 @@ export default class userController {
       accessTicket = await Access.findOne({
         where: { userId: userToAdd.id, board },
       });
-      if (!accessTicket) {
+      if(accessTicket) throw {message:`You already have access to this board`}
+      else {
         accessTicket = await Access.create({
           userId: userToAdd.id,
           board,
-          type: 2,
+          type: 1,
         }).save();
       }
       accessTicket.type = 2;
@@ -844,6 +845,7 @@ export default class userController {
       accessTicket = await Access.findOne({
         where: { userId: userToAdd.id, board },
       });
+      if(accessTicket) throw {message:`You already have access to this board`}
       if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
@@ -896,6 +898,7 @@ export default class userController {
       accessTicket = await Access.findOne({
         where: { userId: userToAdd.id, board },
       });
+      if(accessTicket) throw {message:`You already have access to this board`}
       if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,

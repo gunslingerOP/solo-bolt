@@ -57,7 +57,7 @@ const comparePassword = async (plainPassword, hash) =>
       from: "hasanaqeel38@gmail.com",
       subject: `You have been invited to a board by ${host}`,
       text: `Open the email to get the link `,
-      html: `<strong>click on this link to view the board ${link}</strong>`,
+      html: `<p>click on this link to view the board: <a clicktracking=off href='${link}'>click here to check it out</a></p>`,
     };
 
     (async () => {
