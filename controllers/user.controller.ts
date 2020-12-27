@@ -26,6 +26,7 @@ import { Thread } from "../src/entity/thread";
 import { Following } from "../src/entity/following";
 import { Profile } from "../src/entity/profile";
 import PhoneFormat from "../helpers/phone.format";
+import { profile } from "console";
 var cloudinary = require("cloudinary").v2;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -505,7 +506,7 @@ export default class userController {
       let user = ctx.request.user;
       let filename = ctx.request.files.file.path;
       let url;
-
+let profile
       await cloudinary.uploader
         .upload(filename, { tags: "gotemps", resource_type: "auto" })
         .then(function (file) {
@@ -516,10 +517,15 @@ export default class userController {
             return ReEr(ctx, err);
           }
         });
-      await Profile.create({
+    profile =  await Profile.create({
         url,
         user,
       }).save();
+
+      ctx.body={
+        status:`Success`,
+        data:{profile}
+      }
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
