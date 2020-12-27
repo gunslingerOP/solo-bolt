@@ -546,6 +546,11 @@ let profile
         id: profileId,
         user,
       });
+
+      ctx.body={
+        status:`Success`,
+        data:`Profile image deleted successfully`
+      }
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
