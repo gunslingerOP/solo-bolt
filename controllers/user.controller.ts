@@ -2,6 +2,7 @@ import * as validate from "validate.js";
 require("dotenv").config();
 import validator from "../helpers/validate";
 import {
+  emailInvite,
   emailVerifyOtp,
   hashMyPassword,
   otpGenerator,
@@ -27,6 +28,7 @@ import { Following } from "../src/entity/following";
 import { Profile } from "../src/entity/profile";
 import PhoneFormat from "../helpers/phone.format";
 import { profile } from "console";
+import { Any } from "typeorm";
 var cloudinary = require("cloudinary").v2;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -778,7 +780,10 @@ export default class userController {
       if (userToAdd.id == user.id)
         throw { message: `You're already the owner of this board` };
 
-      if (!userToAdd) throw { message: `No such user found` };
+      if (!userToAdd)
+        throw {
+          message: `No such user found, please make the user you want to add register with an email first`,
+        };
       accessTicket = await Access.findOne({
         where: { userId: userToAdd.id, board },
       });
@@ -791,9 +796,15 @@ export default class userController {
       }
       accessTicket.type = 2;
       await accessTicket.save();
+      emailInvite(
+        userToAdd.email,
+        `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
+        user.name
+      );
+
       ctx.body = {
         status: "Success",
-        data: `User ${userToAdd.name} can now view your board`,
+        data: `User ${userToAdd.name} can now view your board, a link has been sent to their email address`,
       };
     } catch (error) {
       ctx.status = 400;
@@ -842,6 +853,11 @@ export default class userController {
       }
       accessTicket.type = 2;
       await accessTicket.save();
+      emailInvite(
+        userToAdd.email,
+        `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
+        user.name
+      );
       ctx.body = {
         status: "Success",
         data: `User ${userToAdd.name} can now comment on your board`,
@@ -889,6 +905,11 @@ export default class userController {
       }
       accessTicket.type = 3;
       await accessTicket.save();
+      emailInvite(
+        userToAdd.email,
+        `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
+        user.name
+      );
       ctx.body = {
         status: "Success",
         data: `User ${userToAdd.name} is now a collaborator`,

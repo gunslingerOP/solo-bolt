@@ -21,6 +21,13 @@ static verify = (must = true)=>({
   }
 })
 
+static addEmail=(must= true)=>({
+  email:{
+    presence:must,
+    type:"string"
+  }
+})
+
 static verifyCredentials = (must = true)=>({
   otp:{
     presence:must,

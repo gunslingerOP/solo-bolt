@@ -50,6 +50,29 @@ const comparePassword = async (plainPassword, hash) =>
     })();
   }
 
+  const emailInvite = async (email,link, host )=>{
+
+    const msg = {
+      to: email,
+      from: "hasanaqeel38@gmail.com",
+      subject: `You have been invited to a board by ${host}`,
+      text: `Open the email to get the link `,
+      html: `<strong>click on this link to view the board ${link}</strong>`,
+    };
+
+    (async () => {
+      try {
+        await sgMail.send(msg);
+      } catch (error) {
+        console.error(error);
+
+        if (error.response) {
+          console.error(error.response.body);
+        }
+      }
+    })();
+  }
+
   const sendSMS = (body: string, to: string) => {
     client.messages
       .create({ body, from: "+19419993310", to })
@@ -66,4 +89,4 @@ const comparePassword = async (plainPassword, hash) =>
   }
 
   
-export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator, ReEr, sendSMS };
+export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator, ReEr, sendSMS, emailInvite };
