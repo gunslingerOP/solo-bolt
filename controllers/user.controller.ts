@@ -160,8 +160,8 @@ export default class userController {
       let body = ctx.request.body;
       let secretCode;
       let email;
-      let message
-      let phone
+      let message;
+      let phone;
       let notValid = validate(ctx.request.body, validator.verifyCredentials());
       if (notValid) throw { message: notValid };
       if (body.email == false && body.email == false)
@@ -223,16 +223,15 @@ export default class userController {
           user,
         });
         await otp.save();
-        if(body.email){
+        if (body.email) {
           email = body.email;
           emailVerifyOtp(email, secretCode, `Email reset`);
           throw {
             message: `OTP expired, a new one has been sent to your email address`,
           };
-
         }
-        if(body.phone){
-          phone = body.phone
+        if (body.phone) {
+          phone = body.phone;
           sendSMS(`Your new OTP is ${secretCode}`, phone);
           throw {
             message: `OTP expired, a new one has been sent to your phone number`,
@@ -241,16 +240,16 @@ export default class userController {
       } else {
         if (otp.code !== ctx.request.body.otp)
           throw { message: `Incorrect OTP, try again` };
-          if(body.email){
-            user.email = body.email
-            await user.save()
-            message = `Your email address for this account is now ${body.email}`
-          }
-          if(body.phone){
-            user.phone = body.phone
-           await user.save()
-            message = `Your new phone number for this account is ${body.phone}`
-          }
+        if (body.email) {
+          user.email = body.email;
+          await user.save();
+          message = `Your email address for this account is now ${body.email}`;
+        }
+        if (body.phone) {
+          user.phone = body.phone;
+          await user.save();
+          message = `Your new phone number for this account is ${body.phone}`;
+        }
         otp.used = true;
         await otp.save();
       }
@@ -270,7 +269,7 @@ export default class userController {
     try {
       let secretCode;
       let otp;
-      let phone
+      let phone;
       let body = ctx.request.body;
       let email;
       let notValid = validate(ctx.request.body, validator.verify());
@@ -337,16 +336,14 @@ export default class userController {
           user,
         });
         await otp.save();
-        if(body.email){
+        if (body.email) {
           email = body.email;
           emailVerifyOtp(email, secretCode, `Email reset`);
           throw {
             message: `OTP expired, a new one has been sent to your email address`,
           };
-
-        }
-       else if(body.phone){
-          phone = body.phone
+        } else if (body.phone) {
+          phone = body.phone;
           sendSMS(`Your new OTP is ${secretCode}`, phone);
           throw {
             message: `OTP expired, a new one has been sent to your phone number`,
@@ -449,7 +446,7 @@ export default class userController {
       });
       if (!user) throw { message: `No user found` };
       otp = await Otp.findOne({
-        where: { used: false, expired: false, user: user, type:`Login` },
+        where: { used: false, expired: false, user: user, type: `Login` },
       });
       if (!otp) throw { message: `No OTP found, get another one` };
 
@@ -506,7 +503,7 @@ export default class userController {
       let user = ctx.request.user;
       let filename = ctx.request.files.file.path;
       let url;
-let profile
+      let profile;
       await cloudinary.uploader
         .upload(filename, { tags: "gotemps", resource_type: "auto" })
         .then(function (file) {
@@ -517,15 +514,15 @@ let profile
             return ReEr(ctx, err);
           }
         });
-    profile =  await Profile.create({
+      profile = await Profile.create({
         url,
         user,
       }).save();
 
-      ctx.body={
-        status:`Success`,
-        data:{profile}
-      }
+      ctx.body = {
+        status: `Success`,
+        data: { profile },
+      };
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -537,19 +534,22 @@ let profile
 
   static deleteProfile = async (ctx) => {
     try {
-      let profile
+      let profile;
       if (!ctx.request.params.profileId)
         throw { message: `Please send a profileId as request params` };
       let user = ctx.request.user;
       let profileId = ctx.request.params.profileId;
-      profile = await Profile.findOne({where:{id:profileId, user}})
-      if(!profile) throw {message:`No profile image found`}
-     await profile.delete().execute()
+      profile = await Profile.findOne({ where: { id: profileId, user } });
+      if (!profile) throw { message: `No profile image found` };
 
-     ctx.body={
-        status:`Success`,
-        data:`Profile image deleted successfully`
+      if (profile) {
+        await Profile.delete({ id: profileId, user });
       }
+
+      ctx.body = {
+        status: `Success`,
+        data: `Profile image deleted successfully`,
+      };
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -1037,8 +1037,6 @@ let profile
       };
     }
   };
-
- 
 
   static setComment = async (ctx) => {
     try {
