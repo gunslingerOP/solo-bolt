@@ -777,6 +777,7 @@ export default class userController {
       userToAdd = await User.findOne({
         where: { email: ctx.request.body.userEmail },
       });
+      if(!userToAdd) throw{message:`No user with that email found`}
       if (userToAdd.id == user.id)
         throw { message: `You're already the owner of this board` };
 
