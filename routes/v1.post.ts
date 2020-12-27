@@ -126,6 +126,13 @@ route.get(
   checkPermission,
   dataController.getBoardAll
 );
+
+route.get(
+  "/v1/boards",
+  errHandler,
+  userAuth,
+  dataController.getBoardsOwned
+);
 //Admin routes
 route.post("/v1/plan", userController.login);
 

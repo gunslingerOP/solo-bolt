@@ -79,7 +79,11 @@ const comparePassword = async (plainPassword, hash) =>
       .then((message) => console.log(message.sid));
   };
 
-
+  const paginate = ( p = 1, s = 10)=>{
+    let take = s
+    let skip = s*(p-1)
+    return {take, skip}
+  }
   const ReEr=async (ctx, error)=>{
     ctx.status=400
     ctx.body={
@@ -89,4 +93,4 @@ const comparePassword = async (plainPassword, hash) =>
   }
 
   
-export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator, ReEr, sendSMS, emailInvite };
+export {emailVerifyOtp, hashMyPassword, comparePassword, otpGenerator, ReEr, sendSMS, emailInvite, paginate };
