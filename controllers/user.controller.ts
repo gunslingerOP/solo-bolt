@@ -543,9 +543,10 @@ let profile
       let user = ctx.request.user;
       let profileId = ctx.request.params.profileId;
       profile = await Profile.findOne({where:{id:profileId, user}})
-     await profile.delete()
+      if(!profile) throw {message:`No profile image found`}
+     await profile.delete().execute()
 
-      ctx.body={
+     ctx.body={
         status:`Success`,
         data:`Profile image deleted successfully`
       }
