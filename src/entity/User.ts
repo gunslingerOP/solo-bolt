@@ -12,8 +12,10 @@ import {
 import { Board } from "./board";
 import { Comment } from "./comment";
 import { Design } from "./design";
+import { Following } from "./following";
 import { Otp } from "./otp";
 import { Plan } from "./plan";
+import { Profile } from "./profile";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -23,11 +25,11 @@ export class User extends BaseEntity {
   @Column()
   name: string;
 
-  @Column({unique:true})
+  @Column({unique:true, nullable:true})
   email: string;
 
-  @Column()
-  password: string;
+  @Column({unique:true, nullable:true})
+  phone: string;
 
   @Column()
   verified: boolean;
@@ -40,6 +42,14 @@ export class User extends BaseEntity {
 
   @OneToMany((type) => Board, (board) => board.user)
   boards: Board[];
+
+
+  @OneToMany((type) => Following, (following) => following.user)
+  following: Following[];
+
+
+  @OneToMany((type) => Profile, (profile) => profile.user)
+  profile: Profile[];
 
 
   @ManyToOne((type) => Plan, (plan) => plan.users)

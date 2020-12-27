@@ -38,7 +38,13 @@ export class Comment extends BaseEntity {
   completed: boolean;
 
   @Column()
+  inProgress: boolean;
+
+  @Column()
   edited: boolean;
+
+  @Column({nullable:true})
+  whoFor: string;
 
   
   //-----------------------RELATIONS-----------------------

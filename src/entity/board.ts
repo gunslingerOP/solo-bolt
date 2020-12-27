@@ -14,7 +14,6 @@ import {
 import { Access } from "./access";
 import { Comment } from "./comment";
 import { Design } from "./design";
-import { Thread } from "./thread";
 import { User } from "./User";
 
 @Entity("board")

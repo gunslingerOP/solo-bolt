@@ -3,14 +3,20 @@ import limiter from "../middleware/rateLimiter";
 import userAuth from "../middleware/userAuth";
 import errHandler from "../middleware/errHandler";
 import checkPermission from "../middleware/privilegeCheck";
+import dataController from "../controllers/data.controller";
 let router = require("koa-router");
 
 let route = router();
-//user Register, login and verify
+//user Register, login, verify and profile image
 route.post("/v1/register", userController.register);
 route.post("/v1/verify", limiter, userController.verify);
 route.post("/v1/login", userController.login);
 route.post("/v1/loginOtp/:userId", userController.loginOtp);
+route.post("/v1/credentials/change",userAuth, userController.changeCredentials);
+route.post("/v1/credentials/change/otp",userAuth, userController.verifyCredentials);
+route.post("/v1/profile/change",userAuth, userController.changeProfile);
+route.post("/v1/profile/delete/:profileId", userController.deleteProfile);
+
 
 //upload designs and create boards
 route.post("/v1/board", userAuth, errHandler, userController.makeBoard);
@@ -78,16 +84,48 @@ route.post(
   userController.addBoardComment
 );
 
-//get boards with their designs, threads and comments
 
+
+//change comment status
+
+route.post(
+  "/v1/comment/status/:commentId/:boardId",
+  errHandler,
+  userAuth,
+  checkPermission,
+  userController.setComment
+);
+
+
+//follow/unfollow a board
+route.post(
+  "/v1/board/follow/:boardId",
+  errHandler,
+  userAuth,
+  checkPermission,
+  userController.followBoard
+);
+
+route.post(
+  "/v1/board/unfollow/:boardId",
+  errHandler,
+  userAuth,
+  checkPermission,
+  userController.unfollowBoard
+);
+
+
+
+//get functions
+
+//get boards with their designs, threads and comments
 route.get(
   "/v1/board/:boardId",
   errHandler,
   userAuth,
   checkPermission,
-  userController.getBoardAll
+  dataController.getBoardAll
 );
-
 //Admin routes
 route.post("/v1/plan", userController.login);
 

@@ -6,7 +6,7 @@ const koaBody = require('koa-body');
 
 const cors = require("@koa/cors");
 import { createConnection } from "typeorm";
-import route from "../routes/v1";
+import route from "../routes/v1.post";
 let port = process.env.PORT || 3000;
 createConnection().then(async (connection) => {
     app.use(cors());

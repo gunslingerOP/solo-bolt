@@ -34,6 +34,9 @@ export class Design extends BaseEntity {
   @Column({nullable:true})
   url: string;
 
+  @Column({nullable:true})
+  name: string;
+
   //-----------------------RELATIONS-----------------------
 
   @ManyToOne((type) => Board, (board) => board.designs)

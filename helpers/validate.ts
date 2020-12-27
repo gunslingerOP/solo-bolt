@@ -7,19 +7,46 @@ static register = (must = true)=>({
         type: "string",
       },
       email: {
-        presence: must,
         type: "string",
       },
-      password: {
-        presence: must,
+      phone: {
         type: "string",
-      },
+      }
 })
 
 static verify = (must = true)=>({
   otp:{
     presence:must,
     type:"string"
+  }
+})
+
+static verifyCredentials = (must = true)=>({
+  otp:{
+    presence:must,
+    type:"string"
+  },
+  email:{
+    type:"string"
+  },
+  phone:{
+    type:"string"
+  }
+})
+
+static changeCredentials = (must = true)=>({
+  newEmail:{
+    type:"string"
+  },
+  newPhone:{
+    type:"string"
+  }
+})
+
+static followBoard = (must = true)=>({
+  boardId:{
+    presence:must,
+    type:"number"
   }
 })
 
@@ -43,7 +70,9 @@ static board = (must = true)=>({
 
 static login = (must = true)=>({
   email:{
-    presence:must,
+    type:"string"
+  },
+  phone:{
     type:"string"
   }
 })
@@ -87,6 +116,23 @@ static comment = (must = true)=>({
   text:{
     presence:must,
     type:"string"
+  }
+
+})
+
+static setComment = (must = true)=>({
+
+  completed:{
+    presence:must,
+    type:"boolean"
+  },
+  inProgress:{
+    presence:must,
+    type:"boolean"
+  },
+  review:{
+    presence:must,
+    type:"boolean"
   }
 
 })
