@@ -846,7 +846,7 @@ export default class userController {
       accessTicket = await Access.findOne({
         where: { userId: userToAdd.id, board },
       });
-      if(accessTicket) throw {message:`You already have access to this board`}
+      if(accessTicket.type==2) throw {message:`You already have access to this board`}
       if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
