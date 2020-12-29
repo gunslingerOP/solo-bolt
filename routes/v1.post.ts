@@ -133,6 +133,8 @@ route.get(
   userAuth,
   dataController.getBoardsOwned
 );
+
+
 //Admin routes
 route.post("/v1/plan", userController.login);
 
