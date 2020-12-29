@@ -27,6 +27,10 @@ import { Board } from "./board";
   
     @Column()
     type: number;
+
+
+    @Column({nullable:true})
+    active: boolean;
   
 
     @Column()

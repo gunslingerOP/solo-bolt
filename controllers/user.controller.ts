@@ -757,6 +757,8 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
+      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+
       let board;
       let user;
       let userToAdd;
@@ -777,27 +779,27 @@ export default class userController {
       userToAdd = await User.findOne({
         where: { email: ctx.request.body.userEmail },
       });
-      if(!userToAdd) throw{message:`No user with that email found`}
-      if (userToAdd.id == user.id)
-        throw { message: `You're already the owner of this board` };
-
       if (!userToAdd)
         throw {
           message: `No such user found, please make the user you want to add register with an email first`,
         };
+      if (userToAdd.id == user.id)
+        throw { message: `You're already the owner of this board` };
+
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board },
+        where: { userId: userToAdd.id, board, active:true },
       });
-      if(accessTicket) throw {message:`You already have access to this board`}
+      if (accessTicket)
+        throw { message: `You already have access to this board` };
       else {
         accessTicket = await Access.create({
           userId: userToAdd.id,
+          active:true,
           board,
           type: 1,
         }).save();
       }
-      accessTicket.type = 2;
-      await accessTicket.save();
+
       emailInvite(
         userToAdd.email,
         `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
@@ -821,6 +823,8 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
+      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+
       let board;
       let user;
       let userToAdd;
@@ -839,23 +843,25 @@ export default class userController {
       userToAdd = await User.findOne({
         where: { email: ctx.request.body.userEmail },
       });
+      if (!userToAdd) throw { message: `No such user found` };
       if (userToAdd.id == user.id)
         throw { message: `You're already the owner of this board` };
 
-      if (!userToAdd) throw { message: `No such user found` };
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board },
+        where: { userId: userToAdd.id, board, active:true },
       });
-      if(accessTicket.type==2) throw {message:`You already have access to this board`}
-      if (!accessTicket) {
+      if (accessTicket) {
+        if (accessTicket.type == 2 || accessTicket.type == 3)
+          throw { message: `This user can already comment on this board` };
+      } else if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
+          active:true,
           board,
           type: 2,
         }).save();
       }
-      accessTicket.type = 2;
-      await accessTicket.save();
+
       emailInvite(
         userToAdd.email,
         `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
@@ -878,6 +884,7 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
+      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
       let board;
       let user;
       let userToAdd;
@@ -893,22 +900,25 @@ export default class userController {
       userToAdd = await User.findOne({
         where: { email: ctx.request.body.userEmail },
       });
+      if (!userToAdd) throw { message: `No such user found` };
       if (userToAdd.id == user.id)
         throw { message: `You're already the owner of this board` };
-      if (!userToAdd) throw { message: `No such user found` };
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board },
+        where: { userId: userToAdd.id, board, active:true },
       });
-      if(accessTicket) throw {message:`You already have access to this board`}
+      if (accessTicket){
+        if (accessTicket.type == 3)
+        throw { message: `This user is already a collaborator on this board` };
+      }
       if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
+          active:true,
           board,
           type: 3,
         }).save();
       }
-      accessTicket.type = 3;
-      await accessTicket.save();
+
       emailInvite(
         userToAdd.email,
         `https://solo-bolt.herokuapp.com/v1/board/${board.id}`,
@@ -1147,4 +1157,76 @@ export default class userController {
       };
     }
   };
+
+  static removePermission=async (ctx)=>{
+    try {
+      let notvalid = validate(ctx.request.body, validator.accessRemove());
+      if (notvalid) throw { message: notvalid };
+ let body= ctx.request.body
+      let board
+      let message
+    let  accessTicket
+     let user = ctx.request.user;
+      let userToRemove
+      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+      let collaboratorId = ctx.request.params.collaboratorId
+      if(!collaboratorId) throw{message:`Please provide the id of the collaborator you'd like to remove`}
+      board = await Board.findOne({
+        where: { id: ctx.request.params.boardId },
+      });
+      if (!board) throw { message: `No such board found` };
+userToRemove = await User.findOne({where:{id:collaboratorId}})
+if(!userToRemove) throw{message:`Collaborator not found`}
+if(body.action!=="view"&&body.action!=="comment"&&body.action!=="collaborator") throw {message:`Please specify an action of view, comment or collaborator`}
+      if (!board.author == user.id)
+        throw { message: `Only the owner is allowed to do this` };
+
+
+        if(body.action=="view"){
+          if (board.public)
+          throw {
+            message: `This board is public and anyone is allowed to view it`
+          };
+          accessTicket = await Access.findOne({
+            where: { userId: collaboratorId, board, active:true },
+          });
+          if (!accessTicket) throw { message: `This user doesn't have access already` };
+          accessTicket.active = false
+         await accessTicket.save()
+         message =`User ${userToRemove.name} can't view this board anymore `
+        } 
+        else if(body.action=="comment"){
+          if (board.public)
+          throw {
+            message: `This board is public and anyone is allowed to comment on it`
+          };
+          accessTicket = await Access.findOne({
+            where: [{ userId: collaboratorId, board, active:true, type:2 },{userId: collaboratorId, board, active:true, type:3}],
+          });
+          if (!accessTicket) throw { message: `This user already can't comment or add designs` };
+
+          accessTicket.active = false
+         await accessTicket.save()
+         message =`User ${userToRemove.name} can't comment on this board anymore`
+        }
+
+        else if(body.action=="collaborator"){
+          accessTicket = await Access.findOne({
+            where: {userId: collaboratorId, board, active:true, type:3}
+          });
+          if (!accessTicket) throw { message: `This user already isn't a collaborator` };
+
+          accessTicket.active = false
+         await accessTicket.save()
+         message =`User ${userToRemove.name} is no longer a collaborator`
+        }
+        
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  }
 }

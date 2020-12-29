@@ -151,4 +151,11 @@ static access = (must = true)=>({
     type:"string"
   }
 })
+
+static accessRemove = (must = true)=>({
+  action:{
+    presence:must,
+    type:"string"
+  }
+})
 }

@@ -28,26 +28,29 @@ route.post(
   userController.uploadDesign
 );
 
-//upload collaborators
+//add or remove collaborators
 route.post(
   "/v1/collaborator/view/:boardId",
   userAuth,
-  errHandler,
   userController.addCollaboratorView
 );
 
 route.post(
   "/v1/collaborator/comment/:boardId",
   userAuth,
-  errHandler,
   userController.addCollaboratorComment
 );
 
 route.post(
   "/v1/collaborator/:boardId",
   userAuth,
-  errHandler,
   userController.addCollaborator
+);
+
+route.post(
+  "/v1/collaborator/remove/:boardId/:collaboratorId",
+  userAuth,
+  userController.removePermission
 );
 
 //adding comments with their designs to boards and board designs

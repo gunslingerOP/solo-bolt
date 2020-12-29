@@ -26,7 +26,7 @@ export default class dataController {
           },
         },
       });
-      accesses = await Access.find({ where: { board, type: 3 } });
+      accesses = await Access.find({ where: { board, type: 3, active:true } });
       if (accesses) {
         collabs = [];
         for (let el of accesses) {

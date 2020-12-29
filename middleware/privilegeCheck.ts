@@ -18,7 +18,7 @@ export default checkPermission = async (ctx, next) => {
     
     ctx.request.board = board;
     if (!board.public) {
-        access = await Access.findOne({ where: { board, userId: user.id } });    
+        access = await Access.findOne({ where: { board, userId: user.id, active:true } });    
         if (!access && board.author != user.id)
         return ReEr(ctx,{ message: `You do not have permission to view this board` } )
         if(access){
