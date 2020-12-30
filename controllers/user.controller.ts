@@ -1109,7 +1109,6 @@ export default class userController {
       let body = ctx.request.body;
       let access = ctx.request.access;
       let board = ctx.request.board;
-      let date = new Date();
       let user = ctx.request.user;
       let commentId = ctx.request.params.commentId;
       if (
@@ -1157,7 +1156,6 @@ export default class userController {
         status: `Success`,
         data: comment,
         user,
-        date,
       };
     } catch (error) {
       ctx.status = 400;
