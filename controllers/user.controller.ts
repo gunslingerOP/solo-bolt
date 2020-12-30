@@ -1227,7 +1227,10 @@ if(body.action!=="view"&&body.action!=="comment"&&body.action!=="collaborator") 
          await accessTicket.save()
          message =`User ${userToRemove.name} is no longer a collaborator`
         }
-        
+        ctx.body={
+          status:`Successful`,
+          data:message
+        }
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
