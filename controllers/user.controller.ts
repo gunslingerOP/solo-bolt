@@ -757,7 +757,8 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
-      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+      if (!ctx.request.params.boardId)
+        throw { message: `Provide a board id in the params` };
 
       let board;
       let user;
@@ -787,14 +788,14 @@ export default class userController {
         throw { message: `You're already the owner of this board` };
 
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board, active:true },
+        where: { userId: userToAdd.id, board, active: true },
       });
       if (accessTicket)
         throw { message: `You already have access to this board` };
       else {
         accessTicket = await Access.create({
           userId: userToAdd.id,
-          active:true,
+          active: true,
           board,
           type: 1,
         }).save();
@@ -823,7 +824,8 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
-      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+      if (!ctx.request.params.boardId)
+        throw { message: `Provide a board id in the params` };
 
       let board;
       let user;
@@ -848,7 +850,7 @@ export default class userController {
         throw { message: `You're already the owner of this board` };
 
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board, active:true },
+        where: { userId: userToAdd.id, board, active: true },
       });
       if (accessTicket) {
         if (accessTicket.type == 2 || accessTicket.type == 3)
@@ -856,7 +858,7 @@ export default class userController {
       } else if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
-          active:true,
+          active: true,
           board,
           type: 2,
         }).save();
@@ -884,7 +886,8 @@ export default class userController {
     try {
       let notvalid = validate(ctx.request.body, validator.access());
       if (notvalid) throw { message: notvalid };
-      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
+      if (!ctx.request.params.boardId)
+        throw { message: `Provide a board id in the params` };
       let board;
       let user;
       let userToAdd;
@@ -904,16 +907,18 @@ export default class userController {
       if (userToAdd.id == user.id)
         throw { message: `You're already the owner of this board` };
       accessTicket = await Access.findOne({
-        where: { userId: userToAdd.id, board, active:true },
+        where: { userId: userToAdd.id, board, active: true },
       });
-      if (accessTicket){
+      if (accessTicket) {
         if (accessTicket.type == 3)
-        throw { message: `This user is already a collaborator on this board` };
+          throw {
+            message: `This user is already a collaborator on this board`,
+          };
       }
       if (!accessTicket) {
         accessTicket = await Access.create({
           userId: userToAdd.id,
-          active:true,
+          active: true,
           board,
           type: 3,
         }).save();
@@ -1084,6 +1089,15 @@ export default class userController {
       let date = new Date();
       let user = ctx.request.user;
       let commentId = ctx.request.params.commentId;
+      if (
+        body.state !== "inProgress" &&
+        body.state !== "review" &&
+        body.state !== "completed" &&
+        body.state !== "none"
+      )
+        throw {
+          message: `Please specify a state of inProgress, review, completed or none for the comment`,
+        };
       comment = await Comment.findOne({ where: { id: commentId } });
       if (!comment) throw { message: `No comment found` };
       if (access) {
@@ -1092,14 +1106,25 @@ export default class userController {
       }
       if (user.id != board.author)
         throw { message: `You do not have designer permissions` };
-      if (comment.inProgress != body.inProgress) {
-        comment.inProgress = body.inProgress;
+      if (body.state == "inProgress") {
+        comment.inProgress = true;
+        comment.completed = false;
+        comment.review = false;
         await comment.save();
-      } else if (comment.review != body.review) {
-        comment.review = body.review;
+      } else if (body.state == "review") {
+        comment.inProgress = false;
+        comment.completed = false;
+        comment.review = true;
         await comment.save();
-      } else if (comment.completed != body.completed) {
-        comment.completed = body.completed;
+      } else if (body.state == "completed") {
+        comment.inProgress = false;
+        comment.completed = true;
+        comment.review = false;
+        await comment.save();
+      } else if (body.state == "none") {
+        comment.inProgress = false;
+        comment.completed = false;
+        comment.review = false;
         await comment.save();
       } else {
         throw { message: `No change in comment state detected!` };
@@ -1122,17 +1147,18 @@ export default class userController {
 
   static followBoard = async (ctx) => {
     try {
-     if(!ctx.request.params.boardId) throw {message:`Please provide a board id as params`}
+      if (!ctx.request.params.boardId)
+        throw { message: `Please provide a board id as params` };
       let follow;
       let user = ctx.request.user;
       follow = await Following.create({
         boardId: ctx.request.params.boardId,
         user,
       }).save();
-      ctx.body={
-        status:"Successful",
-        data:`You're now following this board`
-      }
+      ctx.body = {
+        status: "Successful",
+        data: `You're now following this board`,
+      };
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -1144,7 +1170,8 @@ export default class userController {
 
   static unfollowBoard = async (ctx) => {
     try {
-      if(!ctx.request.params.boardId) throw {message:`Please provide a board id as params`}
+      if (!ctx.request.params.boardId)
+        throw { message: `Please provide a board id as params` };
 
       let follow;
       let user = ctx.request.user;
@@ -1152,10 +1179,10 @@ export default class userController {
         boardId: ctx.request.params.boardId,
         user,
       });
-      ctx.body={
-        status:"Successful",
-        data:`You're no longer following this board`
-      }
+      ctx.body = {
+        status: "Successful",
+        data: `You're no longer following this board`,
+      };
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -1165,72 +1192,85 @@ export default class userController {
     }
   };
 
-  static removePermission=async (ctx)=>{
+  static removePermission = async (ctx) => {
     try {
       let notvalid = validate(ctx.request.body, validator.accessRemove());
       if (notvalid) throw { message: notvalid };
- let body= ctx.request.body
-      let board
-      let message
-    let  accessTicket
-     let user = ctx.request.user;
-      let userToRemove
-      if(!ctx.request.params.boardId) throw {message:`Provide a board id in the params`}
-      let collaboratorId = ctx.request.params.collaboratorId
-      if(!collaboratorId) throw{message:`Please provide the id of the collaborator you'd like to remove`}
+      let body = ctx.request.body;
+      let board;
+      let message;
+      let accessTicket;
+      let user = ctx.request.user;
+      let userToRemove;
+      if (!ctx.request.params.boardId)
+        throw { message: `Provide a board id in the params` };
+      let collaboratorId = ctx.request.params.collaboratorId;
+      if (!collaboratorId)
+        throw {
+          message: `Please provide the id of the collaborator you'd like to remove`,
+        };
       board = await Board.findOne({
         where: { id: ctx.request.params.boardId },
       });
       if (!board) throw { message: `No such board found` };
-userToRemove = await User.findOne({where:{id:collaboratorId}})
-if(!userToRemove) throw{message:`Collaborator not found`}
-if(body.action!=="view"&&body.action!=="comment"&&body.action!=="collaborator") throw {message:`Please specify an action of view, comment or collaborator`}
+      userToRemove = await User.findOne({ where: { id: collaboratorId } });
+      if (!userToRemove) throw { message: `Collaborator not found` };
+      if (
+        body.action !== "view" &&
+        body.action !== "comment" &&
+        body.action !== "collaborator"
+      )
+        throw {
+          message: `Please specify an action of view, comment or collaborator`,
+        };
       if (!board.author == user.id)
         throw { message: `Only the owner is allowed to do this` };
 
-
-        if(body.action=="view"){
-          if (board.public)
+      if (body.action == "view") {
+        if (board.public)
           throw {
-            message: `This board is public and anyone is allowed to view it`
+            message: `This board is public and anyone is allowed to view it`,
           };
-          accessTicket = await Access.findOne({
-            where: { userId: collaboratorId, board, active:true },
-          });
-          if (!accessTicket) throw { message: `This user doesn't have access already` };
-          accessTicket.active = false
-         await accessTicket.save()
-         message =`User ${userToRemove.name} can't view this board anymore `
-        } 
-        else if(body.action=="comment"){
-          if (board.public)
+        accessTicket = await Access.findOne({
+          where: { userId: collaboratorId, board, active: true },
+        });
+        if (!accessTicket)
+          throw { message: `This user doesn't have access already` };
+        accessTicket.active = false;
+        await accessTicket.save();
+        message = `User ${userToRemove.name} can't view this board anymore `;
+      } else if (body.action == "comment") {
+        if (board.public)
           throw {
-            message: `This board is public and anyone is allowed to comment on it`
+            message: `This board is public and anyone is allowed to comment on it`,
           };
-          accessTicket = await Access.findOne({
-            where: [{ userId: collaboratorId, board, active:true, type:2 },{userId: collaboratorId, board, active:true, type:3}],
-          });
-          if (!accessTicket) throw { message: `This user already can't comment or add designs` };
+        accessTicket = await Access.findOne({
+          where: [
+            { userId: collaboratorId, board, active: true, type: 2 },
+            { userId: collaboratorId, board, active: true, type: 3 },
+          ],
+        });
+        if (!accessTicket)
+          throw { message: `This user already can't comment or add designs` };
 
-          accessTicket.active = false
-         await accessTicket.save()
-         message =`User ${userToRemove.name} can't comment on this board anymore`
-        }
+        accessTicket.active = false;
+        await accessTicket.save();
+        message = `User ${userToRemove.name} can't comment on this board anymore`;
+      } else if (body.action == "collaborator") {
+        accessTicket = await Access.findOne({
+          where: { userId: collaboratorId, board, active: true, type: 3 },
+        });
+        if (!accessTicket)
+          throw { message: `This user already isn't a collaborator` };
 
-        else if(body.action=="collaborator"){
-          accessTicket = await Access.findOne({
-            where: {userId: collaboratorId, board, active:true, type:3}
-          });
-          if (!accessTicket) throw { message: `This user already isn't a collaborator` };
-
-          accessTicket.active = false
-         await accessTicket.save()
-         message =`User ${userToRemove.name} is no longer a collaborator`
-        }
-        ctx.body={
-          status:`Successful`,
-          data:message
-        }
+        accessTicket.active = false;
+        await accessTicket.save();
+        message = `User ${userToRemove.name} is no longer a collaborator`;
+      }
+      ctx.body = {
+        status: `Successful`,
+        data: message,
+      };
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -1238,5 +1278,5 @@ if(body.action!=="view"&&body.action!=="comment"&&body.action!=="collaborator") 
         data: error,
       };
     }
-  }
+  };
 }

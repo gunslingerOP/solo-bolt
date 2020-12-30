@@ -129,17 +129,9 @@ static comment = (must = true)=>({
 
 static setComment = (must = true)=>({
 
-  completed:{
-    presence:must,
-    type:"boolean"
-  },
-  inProgress:{
-    presence:must,
-    type:"boolean"
-  },
-  review:{
-    presence:must,
-    type:"boolean"
+  state:{
+   presence:must,
+    type:"string"
   }
 
 })
