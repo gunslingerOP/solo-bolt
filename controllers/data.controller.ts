@@ -2,8 +2,10 @@ import { async } from "validate.js";
 import { paginate } from "../helpers/tools";
 import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
+import { Comment } from "../src/entity/comment";
 import { Design } from "../src/entity/design";
 import { Following } from "../src/entity/following";
+import { Thread } from "../src/entity/thread";
 import { User } from "../src/entity/User";
 
 export default class dataController {
@@ -96,6 +98,36 @@ for(let el of following){
       ctx.body = {
         status: `Success`,
         data: { boards },
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+  };
+
+  static getComments = async (ctx) => {
+    try {
+      let comments
+      let totalComments
+     let designId = ctx.request.params.designId
+     if(!designId) throw{message:`Provide a design id`}
+     let design
+     let threads
+     design= await Design.findOne({where:{id:designId}})
+     if(!design) throw{message:`No design found`}
+      threads = await Thread.find({where:{design}})
+      for(let thread of threads){
+        totalComments=[]
+        comments = await Comment.find({where:{thread}})
+        totalComments.push(comments)
+      }
+      
+      ctx.body = {
+        status: `Success`,
+        data: totalComments,
       };
     } catch (error) {
       ctx.status = 400;

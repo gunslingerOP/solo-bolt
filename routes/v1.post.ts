@@ -19,7 +19,7 @@ route.delete("/v1/profile/delete/:profileId",userAuth, userController.deleteProf
 
 
 //upload designs and create boards
-route.post("/v1/board", userAuth, errHandler, userController.makeBoard);
+route.post("/v1/board", userAuth, userController.makeBoard);
 
 route.post(
   "/v1/design/:boardId",
@@ -59,7 +59,7 @@ route.post(
   "/v1/board/design/thread/:boardId/:designId",
   userAuth,
   checkPermission,
-  errHandler,
+
   userController.makeThread
 );
 
@@ -74,7 +74,7 @@ route.post(
   "/v1/board/comment/design/:boardId/:commentId",
   userAuth,
   checkPermission,
-  errHandler,
+
   userController.uploadDesignComment
 );
 
@@ -82,7 +82,6 @@ route.post(
   "/v1/board/comment/:boardId",
   userAuth,
   checkPermission,
-  errHandler,
   userController.addBoardComment
 );
 
@@ -92,7 +91,6 @@ route.post(
 
 route.post(
   "/v1/comment/status/:commentId/:boardId",
-  errHandler,
   userAuth,
   checkPermission,
   userController.setComment
@@ -102,7 +100,6 @@ route.post(
 //follow/unfollow a board
 route.post(
   "/v1/board/follow/:boardId",
-  errHandler,
   userAuth,
   checkPermission,
   userController.followBoard
@@ -110,7 +107,6 @@ route.post(
 
 route.post(
   "/v1/board/unfollow/:boardId",
-  errHandler,
   userAuth,
   checkPermission,
   userController.unfollowBoard
@@ -123,7 +119,6 @@ route.post(
 //get boards with their designs, threads and comments
 route.get(
   "/v1/board/:boardId",
-  errHandler,
   userAuth,
   checkPermission,
   dataController.getBoardAll
@@ -131,7 +126,7 @@ route.get(
 
 route.get(
   "/v1/boards",
-  errHandler,
+
   userAuth,
   dataController.getBoardsOwned
 );
@@ -141,9 +136,18 @@ route.get(
 
 route.get(
   "/v1/boards/following",
-  errHandler,
   userAuth,
   dataController.getBoardsFollowing
+);
+
+
+//get comments for a design
+
+route.get(
+  "/v1/design/comments/:designId",
+  userAuth,
+  checkPermission,
+  dataController.getComments
 );
 
 //Admin routes
