@@ -67,7 +67,6 @@ route.post(
   "/v1/thread/comment/:boardId/:threadId",
   userAuth,
   checkPermission,
-  errHandler,
   userController.addComment
 );
 

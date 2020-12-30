@@ -1017,11 +1017,15 @@ export default class userController {
       user = ctx.request.user;
       thread = await Thread.findOne({ where: { id: threadId } });
       if (!thread) throw { message: `No thread found` };
-      if (access.type != 2 && access.type != 3 && board.author != user.id)
+      if(access){
+        if (access.type != 2 && access.type != 3)
         throw { message: `You don't have permission to comment` };
+      }
+      if(board.author != user.id)  throw { message: `You don't have permission to comment` };
       comment = await Comment.create({
         text: body.text,
         completed: false,
+        inProgress:false,
         review: false,
         edited: false,
         thread,
