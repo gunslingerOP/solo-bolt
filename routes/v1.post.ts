@@ -138,6 +138,15 @@ route.get(
 );
 
 
+//get the boards a user is actively following
+
+route.get(
+  "/v1/boards/following",
+  errHandler,
+  userAuth,
+  dataController.getBoardsFollowing
+);
+
 //Admin routes
 route.post("/v1/plan", userController.login);
 
