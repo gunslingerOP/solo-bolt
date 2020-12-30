@@ -144,7 +144,7 @@ route.get(
 //get comments for a design
 
 route.get(
-  "/v1/design/comments/:designId",
+  "/v1/design/comments/:boardId/:designId",
   userAuth,
   checkPermission,
   dataController.getComments
