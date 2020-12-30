@@ -137,4 +137,28 @@ for(let el of following){
       };
     }
   };
+
+  static getCommentDesign = async (ctx) => {
+    try {
+     let comment
+     let design
+      let commentId = ctx.request.params.commentId
+     if(!commentId) throw{message:`Please provide a comment id in the params`}
+comment = await Comment.findOne({where:{id:commentId}})
+if(!comment) throw {message:`No comment found`}
+design = await Design.find({where:{comment}})
+if(!design) throw {message:`There are no designs for this comment`}
+      ctx.body = {
+        status: `Success`,
+        data: design,
+      };
+    } catch (error) {
+      ctx.status = 400;
+      ctx.body = {
+        status: "Failed",
+        data: error,
+      };
+    }
+    
+  };
 }

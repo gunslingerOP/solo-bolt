@@ -150,6 +150,14 @@ route.get(
   dataController.getComments
 );
 
+//get design of a comment
+route.get(
+  "/v1/comment/design/:boardId/:designId",
+  userAuth,
+  checkPermission,
+  dataController.getComments
+);
+
 //Admin routes
 route.post("/v1/plan", userController.login);
 
