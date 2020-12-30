@@ -952,9 +952,19 @@ export default class userController {
       let board;
       let thread;
       let comment;
+      let access= ctx.request.access
       let user;
       user = ctx.request.user;
       board = ctx.request.board;
+
+      if (!board.public) {
+        if(access){
+
+          if (access.type != 2 && access.type != 3 )
+          throw { message: `You don't have permission to comment` };
+        }
+        if(board.author != user.id) throw {message:`You don't have permission to comment`}
+      }
       if (body.domElement == null && body.location == null)
         throw { message: `Please provide a location for the thread` };
       designId = ctx.request.params.designId;
@@ -981,6 +991,7 @@ export default class userController {
       comment = await Comment.create({
         text: body.text,
         completed: false,
+        inProgress:false,
         review: false,
         edited: false,
         thread,
@@ -1017,11 +1028,14 @@ export default class userController {
       user = ctx.request.user;
       thread = await Thread.findOne({ where: { id: threadId } });
       if (!thread) throw { message: `No thread found` };
-      if(access){
-        if (access.type != 2 && access.type != 3)
-        throw { message: `You don't have permission to comment` };
+      if (!board.public) {
+        if(access){
+
+          if (access.type != 2 && access.type != 3 )
+          throw { message: `You don't have permission to comment` };
+        }
+        if(board.author != user.id) throw {message:`You don't have permission to comment`}
       }
-      if(board.author != user.id)  throw { message: `You don't have permission to comment` };
       comment = await Comment.create({
         text: body.text,
         completed: false,
@@ -1057,13 +1071,18 @@ export default class userController {
       user = ctx.request.user;
 
       if (!board.public) {
-        if (access.type != 2 && access.type != 3 && board.author != user.id)
+        if(access){
+
+          if (access.type != 2 && access.type != 3 )
           throw { message: `You don't have permission to comment` };
+        }
+        if(board.author != user.id) throw {message:`You don't have permission to comment`}
       }
 
       comment = await Comment.create({
         text: body.text,
         completed: false,
+        inProgress:false,
         review: false,
         edited: false,
         board,
