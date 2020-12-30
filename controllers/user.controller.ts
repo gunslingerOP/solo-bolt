@@ -1126,7 +1126,7 @@ export default class userController {
       let follow;
       let user = ctx.request.user;
       follow = await Following.create({
-        boardId: ctx.request.body,
+        boardId: ctx.request.params.boardId,
         user,
       }).save();
       ctx.body={
@@ -1149,7 +1149,7 @@ export default class userController {
       let follow;
       let user = ctx.request.user;
       follow = await Following.delete({
-        boardId: ctx.request.body,
+        boardId: ctx.request.params.boardId,
         user,
       });
       ctx.body={
