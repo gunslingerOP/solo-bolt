@@ -1122,14 +1122,17 @@ export default class userController {
 
   static followBoard = async (ctx) => {
     try {
-      let notvalid = validate(ctx.request.body, validator.followBoard());
-      if (notvalid) throw { message: notvalid };
+     if(!ctx.request.params.boardId) throw {message:`Please provide a board id as params`}
       let follow;
       let user = ctx.request.user;
       follow = await Following.create({
         boardId: ctx.request.body,
         user,
       }).save();
+      ctx.body={
+        status:"Successful",
+        data:`You're now following this board`
+      }
     } catch (error) {
       ctx.status = 400;
       ctx.body = {
@@ -1141,14 +1144,18 @@ export default class userController {
 
   static unfollowBoard = async (ctx) => {
     try {
-      let notvalid = validate(ctx.request.body, validator.followBoard());
-      if (notvalid) throw { message: notvalid };
+      if(!ctx.request.params.boardId) throw {message:`Please provide a board id as params`}
+
       let follow;
       let user = ctx.request.user;
       follow = await Following.delete({
         boardId: ctx.request.body,
         user,
       });
+      ctx.body={
+        status:"Successful",
+        data:`You're no longer following this board`
+      }
     } catch (error) {
       ctx.status = 400;
       ctx.body = {

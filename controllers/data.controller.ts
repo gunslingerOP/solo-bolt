@@ -92,7 +92,7 @@ for(let el of following){
 
 }      
       boards = await Board.findByIds(ids)
-      
+      if(boards.length==0) throw {message:`You haven't followed any boards yet`}
       ctx.body = {
         status: `Success`,
         data: { boards },
