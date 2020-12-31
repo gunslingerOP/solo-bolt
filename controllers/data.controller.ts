@@ -26,6 +26,7 @@ export default class dataController {
           leftJoinAndSelect: {
             threads: "design.threads",
             comments: "threads.comments",
+            designs:"comments.designs"
           },
         },
       });
