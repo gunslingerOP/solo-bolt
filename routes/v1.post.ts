@@ -8,18 +8,25 @@ import checkToken from "../middleware/otpChecker";
 let router = require("koa-router");
 
 let route = router({
-  prefix:'/v1'
+  prefix: "/v1",
 });
 //user Register, login, verify and profile image
 route.post("/register", userController.register);
-route.post("/verify",checkToken, userController.verify);
+route.post("/verify", checkToken, userController.verify);
 route.post("/login", userController.login);
-route.post("/otp/:userId",checkToken, userController.loginOtp);
-route.post("/credentials/change",userAuth, userController.changeCredentials);
-route.post("/credentials/change/otp",userAuth, userController.verifyCredentials);
-route.post("/profile/change",userAuth, userController.changeProfile);
-route.delete("/profile/delete/:profileId",userAuth, userController.deleteProfile);
-
+route.post("/otp/:userId", checkToken, userController.loginOtp);
+route.post("/credentials/change", userAuth, userController.changeCredentials);
+route.post(
+  "/credentials/change/otp",
+  userAuth,
+  userController.verifyCredentials
+);
+route.post("/profile/change", userAuth, userController.changeProfile);
+route.delete(
+  "/profile/delete/:profileId",
+  userAuth,
+  userController.deleteProfile
+);
 
 //upload designs and create boards
 route.post("/board", userAuth, userController.makeBoard);
@@ -44,11 +51,7 @@ route.post(
   userController.addCollaboratorComment
 );
 
-route.post(
-  "/collaborator/:boardId",
-  userAuth,
-  userController.addCollaborator
-);
+route.post("/collaborator/:boardId", userAuth, userController.addCollaborator);
 
 route.post(
   "/collaborator/remove/:boardId/:collaboratorId",
@@ -88,8 +91,6 @@ route.post(
   userController.addBoardComment
 );
 
-
-
 //change comment status
 
 route.post(
@@ -98,7 +99,6 @@ route.post(
   checkPermission,
   userController.setComment
 );
-
 
 //follow/unfollow a board
 route.post(
@@ -114,8 +114,6 @@ route.post(
   checkPermission,
   userController.unfollowBoard
 );
-
-
 
 //get functions
 
@@ -134,15 +132,9 @@ route.get(
   dataController.getBoardsOwned
 );
 
-
 //get the boards a user is actively following
 
-route.get(
-  "/boards/following",
-  userAuth,
-  dataController.getBoardsFollowing
-);
-
+route.get("/boards/following", userAuth, dataController.getBoardsFollowing);
 
 //get comments for a design
 
@@ -152,8 +144,6 @@ route.get(
   checkPermission,
   dataController.getComments
 );
-
-
 
 //Admin routes
 route.post("/plan", userController.login);
