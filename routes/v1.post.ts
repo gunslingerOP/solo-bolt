@@ -11,6 +11,7 @@ let route = router({
   prefix: "/v1",
 });
 //user Register, login, verify and profile image
+
 route.post("/register", userController.register);
 route.post("/verify", checkToken, userController.verify);
 route.post("/login", userController.login);
