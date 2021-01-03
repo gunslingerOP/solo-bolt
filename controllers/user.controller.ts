@@ -44,7 +44,7 @@ export default class userController {
       let user;
       let body = ctx.request.body;
       let otp;
-      let link 
+      let link;
       let plan;
       let secretCode;
       let email;
@@ -75,7 +75,10 @@ export default class userController {
       });
       await user.save();
       secretCode = await otpGenerator();
-      const token = jwt.sign({ id: user.id, otp: true }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: user.id, otp: true },
+        process.env.JWT_SECRET
+      );
       otp = await Otp.create({
         expired: false,
         code: secretCode,
@@ -86,7 +89,7 @@ export default class userController {
       await otp.save();
       if (user.email) {
         email = user.email;
-        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`
+        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`;
         emailVerifyOtp(email, secretCode, `Registration`, link);
       }
       if (user.phone) {
@@ -132,9 +135,9 @@ export default class userController {
         user,
       });
       await otp.save();
-
+let link = `https://solo-bolt.herokuapp.com/v1/credentials/change/otp`
       if (body.newEmail) {
-        // emailVerifyOtp(body.newEmail, secretCode, `resetting your email`);
+        emailVerifyOtp(body.newEmail, secretCode, `reset your email`, link);
         message = `An email reset OTP has been sent to your new email address`;
       }
 
@@ -274,12 +277,15 @@ export default class userController {
       let secretCode;
       let otp;
       let phone;
-      let link
+      let link;
       let body = ctx.request.body;
       let email;
       let notValid = validate(ctx.request.body, validator.verify());
       if (notValid) throw { message: notValid };
-      if(body.email==null&&body.phone==null) throw{message:`Please provide the email or the phone number of the user`}
+      if (body.email == null && body.phone == null)
+        throw {
+          message: `Please provide the email or the phone number of the user`,
+        };
       let year;
       let month;
       let day;
@@ -296,8 +302,8 @@ export default class userController {
       let secondsNow;
       let payload;
       let user;
-     
-      user = ctx.user
+
+      user = ctx.user;
       if (user.verified == true)
         throw { message: `Your account has already been verified` };
 
@@ -337,17 +343,20 @@ export default class userController {
           user,
         });
         await otp.save();
-        const token = jwt.sign({ id: user.id, otp: true }, process.env.JWT_SECRET);
-        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`
+        const token = jwt.sign(
+          { id: user.id, otp: true },
+          process.env.JWT_SECRET
+        );
+        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`;
         if (body.email) {
           email = body.email;
-         await emailVerifyOtp(email, secretCode, `account verification`, link);
+          await emailVerifyOtp(email, secretCode, `account verification`, link);
           throw {
             message: `OTP expired, a new one has been sent to your email address`,
           };
         } else if (body.phone) {
           phone = body.phone;
-         await sendSMS(`Your new OTP is ${secretCode}`, phone);
+          await sendSMS(`Your new OTP is ${secretCode}`, phone);
           throw {
             message: `OTP expired, a new one has been sent to your phone number`,
           };
@@ -385,8 +394,8 @@ export default class userController {
       if (notValid) throw { message: notValid };
       if (body.email == false && body.phone == false)
         throw { message: `Please provide a phone number or an email` };
-      if (body.email) {        
-        user = await User.findOne({ where: { email: body.email } });        
+      if (body.email) {
+        user = await User.findOne({ where: { email: body.email } });
         if (!user) throw { message: `No user found` };
       }
 
@@ -410,13 +419,13 @@ export default class userController {
         user,
       });
       await otp.save();
-   let   token = jwt.sign({ id: user.id, otp:true }, config.jwtSecret);
+      let token = jwt.sign({ id: user.id, otp: true }, config.jwtSecret);
 
       if (body.email) {
         email = user.email;
-       let link = `https://solo-bolt.herokuapp.com/v1/otp/${user.id}?token=${token}`
+        let link = `https://solo-bolt.herokuapp.com/v1/otp/${user.id}?token=${token}`;
         emailVerifyOtp(email, secretCode, `login`, link);
- 
+
         message = `An email with the login OTP has been sent to your email address`;
       }
       if (body.phone) {
@@ -440,12 +449,12 @@ export default class userController {
   static loginOtp = async (ctx) => {
     try {
       let token;
-      let body = ctx.request.body
+      let body = ctx.request.body;
       let date = new Date();
       let notValid = validate(ctx.request.body, validator.verify());
       if (notValid) throw { message: notValid };
       if (body.email == false && body.phone == false)
-      throw { message: `Please provide a phone number or an email` };
+        throw { message: `Please provide a phone number or an email` };
 
       let user;
       let userId;
@@ -961,18 +970,18 @@ export default class userController {
       let board;
       let thread;
       let comment;
-      let access= ctx.request.access
+      let access = ctx.request.access;
       let user;
       user = ctx.request.user;
       board = ctx.request.board;
 
       if (!board.public) {
-        if(access){
-
-          if (access.type != 2 && access.type != 3 )
-          throw { message: `You don't have permission to comment` };
+        if (access) {
+          if (access.type != 2 && access.type != 3)
+            throw { message: `You don't have permission to comment` };
         }
-        if(board.author != user.id) throw {message:`You don't have permission to comment`}
+        if (board.author != user.id)
+          throw { message: `You don't have permission to comment` };
       }
       if (body.domElement == null && body.location == null)
         throw { message: `Please provide a location for the thread` };
@@ -1000,7 +1009,7 @@ export default class userController {
       comment = await Comment.create({
         text: body.text,
         completed: false,
-        inProgress:false,
+        inProgress: false,
         review: false,
         edited: false,
         thread,
@@ -1038,17 +1047,17 @@ export default class userController {
       thread = await Thread.findOne({ where: { id: threadId } });
       if (!thread) throw { message: `No thread found` };
       if (!board.public) {
-        if(access){
-
-          if (access.type != 2 && access.type != 3 )
-          throw { message: `You don't have permission to comment` };
+        if (access) {
+          if (access.type != 2 && access.type != 3)
+            throw { message: `You don't have permission to comment` };
         }
-        if(board.author != user.id) throw {message:`You don't have permission to comment`}
+        if (board.author != user.id)
+          throw { message: `You don't have permission to comment` };
       }
       comment = await Comment.create({
         text: body.text,
         completed: false,
-        inProgress:false,
+        inProgress: false,
         review: false,
         edited: false,
         thread,
@@ -1080,18 +1089,18 @@ export default class userController {
       user = ctx.request.user;
 
       if (!board.public) {
-        if(access){
-
-          if (access.type != 2 && access.type != 3 )
-          throw { message: `You don't have permission to comment` };
+        if (access) {
+          if (access.type != 2 && access.type != 3)
+            throw { message: `You don't have permission to comment` };
         }
-        if(board.author != user.id) throw {message:`You don't have permission to comment`}
+        if (board.author != user.id)
+          throw { message: `You don't have permission to comment` };
       }
 
       comment = await Comment.create({
         text: body.text,
         completed: false,
-        inProgress:false,
+        inProgress: false,
         review: false,
         edited: false,
         board,

@@ -35,7 +35,7 @@ const comparePassword = async (plainPassword, hash) =>
       subject: `Your OTP for ${action}!`,
       text: `Your OTP is ${secretCode}`,
       html: `<strong>Your OTP is ${secretCode}</strong>
-      <P> Click this link and enter the otp to login: ${link}
+      <p> Click this link and enter the otp to ${action}: ${link}<p>
       `,
     };
 
@@ -74,6 +74,8 @@ const comparePassword = async (plainPassword, hash) =>
       }
     })();
   }
+
+  
 
   const sendSMS = (body: string, to: string) => {
     client.messages
