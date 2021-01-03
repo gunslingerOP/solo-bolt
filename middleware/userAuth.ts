@@ -15,6 +15,7 @@ import { ReEr } from "../helpers/tools";
         
         return ReEr(ctx, error)
       }
+      if(payload.otp) throw{message:`Your token is for logging in and registering only!`}
     let   user = await User.findOne({
         where: { id: payload.id, verified: true },
     });

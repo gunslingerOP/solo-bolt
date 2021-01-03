@@ -44,6 +44,7 @@ export default class userController {
       let user;
       let body = ctx.request.body;
       let otp;
+      let link 
       let plan;
       let secretCode;
       let email;
@@ -74,6 +75,7 @@ export default class userController {
       });
       await user.save();
       secretCode = await otpGenerator();
+      const token = jwt.sign({ id: user.id, otp: true }, process.env.JWT_SECRET);
       otp = await Otp.create({
         expired: false,
         code: secretCode,
@@ -84,15 +86,15 @@ export default class userController {
       await otp.save();
       if (user.email) {
         email = user.email;
-        emailVerifyOtp(email, secretCode, `Registration`);
+        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`
+        emailVerifyOtp(email, secretCode, `Registration`, link);
       }
       if (user.phone) {
         sendSMS(`Your otp for registration is ${secretCode}`, user.phone);
       }
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
       ctx.body = {
         status: "success",
-        data: { token: token, user },
+        data: { token: token, user }, //if user is using a phone number then this token must be used before the verify and login endpoints as a query
       };
     } catch (error) {
       ctx.status = 400;
@@ -132,7 +134,7 @@ export default class userController {
       await otp.save();
 
       if (body.newEmail) {
-        emailVerifyOtp(body.newEmail, secretCode, `resetting your email`);
+        // emailVerifyOtp(body.newEmail, secretCode, `resetting your email`);
         message = `An email reset OTP has been sent to your new email address`;
       }
 
@@ -227,7 +229,7 @@ export default class userController {
         await otp.save();
         if (body.email) {
           email = body.email;
-          emailVerifyOtp(email, secretCode, `Email reset`);
+          // emailVerifyOtp(email, secretCode, `Email reset`);
           throw {
             message: `OTP expired, a new one has been sent to your email address`,
           };
@@ -272,10 +274,12 @@ export default class userController {
       let secretCode;
       let otp;
       let phone;
+      let link
       let body = ctx.request.body;
       let email;
       let notValid = validate(ctx.request.body, validator.verify());
       if (notValid) throw { message: notValid };
+      if(body.email==null&&body.phone==null) throw{message:`Please provide the email or the phone number of the user`}
       let year;
       let month;
       let day;
@@ -292,13 +296,8 @@ export default class userController {
       let secondsNow;
       let payload;
       let user;
-      if (!ctx.request.headers.token) throw { message: `Please get a token` };
-      const token = ctx.request.headers.token;
-
-      payload = jwt.verify(token, config.jwtSecret);
-
-      user = await User.findOne({ where: { id: payload.id } });
-      if (!user) throw { message: `No user found` };
+     
+      user = ctx.user
       if (user.verified == true)
         throw { message: `Your account has already been verified` };
 
@@ -338,15 +337,17 @@ export default class userController {
           user,
         });
         await otp.save();
+        const token = jwt.sign({ id: user.id, otp: true }, process.env.JWT_SECRET);
+        link = `https://solo-bolt.herokuapp.com/v1/verify?token=${token}`
         if (body.email) {
           email = body.email;
-          emailVerifyOtp(email, secretCode, `Email reset`);
+         await emailVerifyOtp(email, secretCode, `account verification`, link);
           throw {
             message: `OTP expired, a new one has been sent to your email address`,
           };
         } else if (body.phone) {
           phone = body.phone;
-          sendSMS(`Your new OTP is ${secretCode}`, phone);
+         await sendSMS(`Your new OTP is ${secretCode}`, phone);
           throw {
             message: `OTP expired, a new one has been sent to your phone number`,
           };
@@ -384,12 +385,12 @@ export default class userController {
       if (notValid) throw { message: notValid };
       if (body.email == false && body.phone == false)
         throw { message: `Please provide a phone number or an email` };
-      if (body.email) {
-        user = await User.findOne({ where: { email: body.email } });
+      if (body.email) {        
+        user = await User.findOne({ where: { email: body.email } });        
         if (!user) throw { message: `No user found` };
       }
 
-      if (body.email) {
+      if (body.phone) {
         user = await User.findOne({ where: { phone: body.phone } });
         if (!user) throw { message: `No user found` };
       }
@@ -409,9 +410,13 @@ export default class userController {
         user,
       });
       await otp.save();
+   let   token = jwt.sign({ id: user.id, otp:true }, config.jwtSecret);
+
       if (body.email) {
         email = user.email;
-        emailVerifyOtp(email, secretCode, `login`);
+       let link = `https://solo-bolt.herokuapp.com/v1/otp/${user.id}?token=${token}`
+        emailVerifyOtp(email, secretCode, `login`, link);
+ 
         message = `An email with the login OTP has been sent to your email address`;
       }
       if (body.phone) {
@@ -422,7 +427,7 @@ export default class userController {
 
       ctx.body = {
         status: "Success",
-        data: { user, message },
+        data: { user, message, token },
       };
     } catch (error) {
       ctx.status = 400;
@@ -435,9 +440,13 @@ export default class userController {
   static loginOtp = async (ctx) => {
     try {
       let token;
+      let body = ctx.request.body
       let date = new Date();
       let notValid = validate(ctx.request.body, validator.verify());
       if (notValid) throw { message: notValid };
+      if (body.email == false && body.phone == false)
+      throw { message: `Please provide a phone number or an email` };
+
       let user;
       let userId;
       userId = ctx.request.params.userId;

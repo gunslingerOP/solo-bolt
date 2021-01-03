@@ -18,6 +18,12 @@ static verify = (must = true)=>({
   otp:{
     presence:must,
     type:"string"
+  },
+  email:{
+    type:"string"
+  },
+  phone:{
+    type:"string"
   }
 })
 
@@ -81,6 +87,13 @@ static login = (must = true)=>({
   },
   phone:{
     type:"string"
+  }
+})
+
+static token = (must = true)=>({
+  token:{
+    type:"string",
+    presence:must
   }
 })
 

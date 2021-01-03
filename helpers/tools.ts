@@ -26,7 +26,7 @@ const hashMyPassword = async (plainPassword) => {
 const comparePassword = async (plainPassword, hash) =>
   await bcrypt.compare(plainPassword, hash);
 
-  const emailVerifyOtp = async (email, secretCode, action)=>{
+  const emailVerifyOtp = async (email, secretCode, action, link)=>{
 
 
     const msg = {
@@ -34,7 +34,9 @@ const comparePassword = async (plainPassword, hash) =>
       from: "hasanaqeel38@gmail.com",
       subject: `Your OTP for ${action}!`,
       text: `Your OTP is ${secretCode}`,
-      html: `<strong>Your OTP is ${secretCode}</strong>`,
+      html: `<strong>Your OTP is ${secretCode}</strong>
+      <P> Click this link and enter the otp to login: ${link}
+      `,
     };
 
     (async () => {

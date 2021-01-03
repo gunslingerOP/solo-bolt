@@ -1,5 +1,6 @@
-import { async } from "validate.js";
+import { async, validate } from "validate.js";
 import { paginate } from "../helpers/tools";
+import validator from "../helpers/validate";
 import { Access } from "../src/entity/access";
 import { Board } from "../src/entity/board";
 import { Comment } from "../src/entity/comment";
@@ -7,7 +8,8 @@ import { Design } from "../src/entity/design";
 import { Following } from "../src/entity/following";
 import { Thread } from "../src/entity/thread";
 import { User } from "../src/entity/User";
-
+import config from "../config/index";
+import * as jwt from "jsonwebtoken";
 export default class dataController {
   static getBoardAll = async (ctx) => {
     try {
@@ -26,7 +28,7 @@ export default class dataController {
           leftJoinAndSelect: {
             threads: "design.threads",
             comments: "threads.comments",
-            designs:"comments.designs"
+            designs: "comments.designs",
           },
         },
       });
@@ -85,17 +87,17 @@ export default class dataController {
       let user = ctx.request.user;
       let boards;
       let following;
-      let ids=[]
+      let ids = [];
       let { p, s } = ctx.request.query;
       let { take, skip } = paginate(p, s);
-      following = await Following.find({where:{user}});
-      if(!following) throw {message:`You're not following any board`}
-for(let el of following){
-  ids.push(el.boardId)
-
-}      
-      boards = await Board.findByIds(ids)
-      if(boards.length==0) throw {message:`You haven't followed any boards yet`}
+      following = await Following.find({ where: { user } });
+      if (!following) throw { message: `You're not following any board` };
+      for (let el of following) {
+        ids.push(el.boardId);
+      }
+      boards = await Board.findByIds(ids);
+      if (boards.length == 0)
+        throw { message: `You haven't followed any boards yet` };
       ctx.body = {
         status: `Success`,
         data: { boards },
@@ -111,21 +113,21 @@ for(let el of following){
 
   static getComments = async (ctx) => {
     try {
-      let comments
-      let totalComments
-     let designId = ctx.request.params.designId
-     if(!designId) throw{message:`Provide a design id`}
-     let design
-     let threads
-     design= await Design.findOne({where:{id:designId}})
-     if(!design) throw{message:`No design found`}
-      threads = await Thread.find({where:{design}})
-      for(let thread of threads){
-        totalComments=[]
-        comments = await Comment.find({where:{thread}})
-        totalComments.push(comments)
+      let comments;
+      let totalComments;
+      let designId = ctx.request.params.designId;
+      if (!designId) throw { message: `Provide a design id` };
+      let design;
+      let threads;
+      design = await Design.findOne({ where: { id: designId } });
+      if (!design) throw { message: `No design found` };
+      threads = await Thread.find({ where: { design } });
+      for (let thread of threads) {
+        totalComments = [];
+        comments = await Comment.find({ where: { thread } });
+        totalComments.push(comments);
       }
-      
+
       ctx.body = {
         status: `Success`,
         data: totalComments,
@@ -141,14 +143,15 @@ for(let el of following){
 
   static getCommentDesign = async (ctx) => {
     try {
-     let comment
-     let design
-      let commentId = ctx.request.params.commentId
-     if(!commentId) throw{message:`Please provide a comment id in the params`}
-comment = await Comment.findOne({where:{id:commentId}})
-if(!comment) throw {message:`No comment found`}
-design = await Design.find({where:{comment}})
-if(!design) throw {message:`There are no designs for this comment`}
+      let comment;
+      let design;
+      let commentId = ctx.request.params.commentId;
+      if (!commentId)
+        throw { message: `Please provide a comment id in the params` };
+      comment = await Comment.findOne({ where: { id: commentId } });
+      if (!comment) throw { message: `No comment found` };
+      design = await Design.find({ where: { comment } });
+      if (!design) throw { message: `There are no designs for this comment` };
       ctx.body = {
         status: `Success`,
         data: design,
@@ -160,6 +163,6 @@ if(!design) throw {message:`There are no designs for this comment`}
         data: error,
       };
     }
-    
   };
+
 }

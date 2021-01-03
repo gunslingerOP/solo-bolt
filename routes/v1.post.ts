@@ -1,28 +1,31 @@
 import userController from "../controllers/user.controller";
 import limiter from "../middleware/rateLimiter";
 import userAuth from "../middleware/userAuth";
-import errHandler from "../middleware/errHandler";
 import checkPermission from "../middleware/privilegeCheck";
 import dataController from "../controllers/data.controller";
+import otpChecker from "../middleware/otpChecker";
+import checkToken from "../middleware/otpChecker";
 let router = require("koa-router");
 
-let route = router();
+let route = router({
+  prefix:'/v1'
+});
 //user Register, login, verify and profile image
-route.post("/v1/register", userController.register);
-route.post("/v1/verify", limiter, userController.verify);
-route.post("/v1/login", userController.login);
-route.post("/v1/loginOtp/:userId", userController.loginOtp);
-route.post("/v1/credentials/change",userAuth, userController.changeCredentials);
-route.post("/v1/credentials/change/otp",userAuth, userController.verifyCredentials);
-route.post("/v1/profile/change",userAuth, userController.changeProfile);
-route.delete("/v1/profile/delete/:profileId",userAuth, userController.deleteProfile);
+route.post("/register", userController.register);
+route.post("/verify",checkToken, userController.verify);
+route.post("/login", userController.login);
+route.post("/otp/:userId",checkToken, userController.loginOtp);
+route.post("/credentials/change",userAuth, userController.changeCredentials);
+route.post("/credentials/change/otp",userAuth, userController.verifyCredentials);
+route.post("/profile/change",userAuth, userController.changeProfile);
+route.delete("/profile/delete/:profileId",userAuth, userController.deleteProfile);
 
 
 //upload designs and create boards
-route.post("/v1/board", userAuth, userController.makeBoard);
+route.post("/board", userAuth, userController.makeBoard);
 
 route.post(
-  "/v1/design/:boardId",
+  "/design/:boardId",
   userAuth,
   checkPermission,
   userController.uploadDesign
@@ -30,25 +33,25 @@ route.post(
 
 //add or remove collaborators
 route.post(
-  "/v1/collaborator/view/:boardId",
+  "/collaborator/view/:boardId",
   userAuth,
   userController.addCollaboratorView
 );
 
 route.post(
-  "/v1/collaborator/comment/:boardId",
+  "/collaborator/comment/:boardId",
   userAuth,
   userController.addCollaboratorComment
 );
 
 route.post(
-  "/v1/collaborator/:boardId",
+  "/collaborator/:boardId",
   userAuth,
   userController.addCollaborator
 );
 
 route.post(
-  "/v1/collaborator/remove/:boardId/:collaboratorId",
+  "/collaborator/remove/:boardId/:collaboratorId",
   userAuth,
   userController.removePermission
 );
@@ -56,7 +59,7 @@ route.post(
 //adding comments with their designs to boards and board designs
 
 route.post(
-  "/v1/board/design/thread/:boardId/:designId",
+  "/design/thread/:boardId/:designId",
   userAuth,
   checkPermission,
 
@@ -64,14 +67,14 @@ route.post(
 );
 
 route.post(
-  "/v1/thread/comment/:boardId/:threadId",
+  "/thread/comment/:boardId/:threadId",
   userAuth,
   checkPermission,
   userController.addComment
 );
 
 route.post(
-  "/v1/board/comment/design/:boardId/:commentId",
+  "/board/comment/design/:boardId/:commentId",
   userAuth,
   checkPermission,
 
@@ -79,7 +82,7 @@ route.post(
 );
 
 route.post(
-  "/v1/board/comment/:boardId",
+  "/board/comment/:boardId",
   userAuth,
   checkPermission,
   userController.addBoardComment
@@ -90,7 +93,7 @@ route.post(
 //change comment status
 
 route.post(
-  "/v1/comment/status/:commentId/:boardId",
+  "/comment/status/:commentId/:boardId",
   userAuth,
   checkPermission,
   userController.setComment
@@ -99,14 +102,14 @@ route.post(
 
 //follow/unfollow a board
 route.post(
-  "/v1/board/follow/:boardId",
+  "/board/follow/:boardId",
   userAuth,
   checkPermission,
   userController.followBoard
 );
 
 route.post(
-  "/v1/board/unfollow/:boardId",
+  "/board/unfollow/:boardId",
   userAuth,
   checkPermission,
   userController.unfollowBoard
@@ -118,14 +121,14 @@ route.post(
 
 //get boards with their designs, threads and comments
 route.get(
-  "/v1/board/:boardId",
+  "/board/:boardId",
   userAuth,
   checkPermission,
   dataController.getBoardAll
 );
 
 route.get(
-  "/v1/boards",
+  "/boards",
 
   userAuth,
   dataController.getBoardsOwned
@@ -135,7 +138,7 @@ route.get(
 //get the boards a user is actively following
 
 route.get(
-  "/v1/boards/following",
+  "/boards/following",
   userAuth,
   dataController.getBoardsFollowing
 );
@@ -144,7 +147,7 @@ route.get(
 //get comments for a design
 
 route.get(
-  "/v1/design/comments/:boardId/:designId",
+  "/design/comments/:boardId/:designId",
   userAuth,
   checkPermission,
   dataController.getComments
@@ -153,6 +156,6 @@ route.get(
 
 
 //Admin routes
-route.post("/v1/plan", userController.login);
+route.post("/plan", userController.login);
 
 export default route;
